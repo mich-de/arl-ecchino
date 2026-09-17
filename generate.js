@@ -205,21 +205,13 @@ async function main() {
   const valid    = existing.filter(e => { const t = Date.parse(e.created || 0); return !isNaN(t) && t >= cutoff; });
   log(`ARL esistenti: ${existing.length}, validi dopo prune (<${KEEP_DAYS}g): ${valid.length}`);
 
-  const baseArgs  = ['--no-sandbox', '--disable-setuid-sandbox', '--disable-blink-features=AutomationControlled'];
-  const directOpts = { headless: true, args: baseArgs };
-  const proxyOpts  = process.env.PROXY_URL ? {
-    headless: true, args: baseArgs,
-    proxy: { server: process.env.PROXY_URL, bypass: 'account.deezer.com' },
-  } : null;
-
-  if (proxyOpts) log(`Proxy configurato: ${process.env.PROXY_URL.replace(/:[^@]+@/, ':***@')}`);
+  const launchOpts = {
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-blink-features=AutomationControlled'],
+  };
 
   log('Getting session...');
-  let sessionResult = proxyOpts ? await trySession(proxyOpts) : null;
-  if (!sessionResult) {
-    if (proxyOpts) log('Proxy KO - riprovo senza proxy (connessione diretta)...');
-    sessionResult = await trySession(directOpts);
-  }
+  const sessionResult = await trySession(launchOpts);
   if (!sessionResult) {
     log('ERROR: Impossibile ottenere sessione Deezer');
     process.exitCode = 1;
