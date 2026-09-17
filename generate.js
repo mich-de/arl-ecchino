@@ -68,11 +68,13 @@ function loadExisting() {
 async function trySession(launchOpts) {
   const browser = await chromium.launch(launchOpts);
   const context = await browser.newContext({
-    userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+    userAgent: 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
     locale: 'en-US',
     timezoneId: 'America/New_York',
-    viewport: { width: 1280, height: 800 },
-    deviceScaleFactor: 1,
+    viewport: { width: 412, height: 915 },
+    deviceScaleFactor: 2.625,
+    isMobile: true,
+    hasTouch: true,
     ignoreHTTPSErrors: true,
   });
 
