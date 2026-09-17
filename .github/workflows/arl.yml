@@ -41,7 +41,7 @@ jobs:
         run: |
           git config user.name "arl-ecchino bot"
           git config user.email "actions@users.noreply.github.com"
-          git add arls.json arl.txt
+          git add arls.json arl.txt 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "Nessuna modifica da committare"
           else

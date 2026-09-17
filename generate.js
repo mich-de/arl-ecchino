@@ -60,8 +60,16 @@ async function createOne(page) {
       body: JSON.stringify({ APP_NAME: 'Deezer' }),
       credentials: 'include',
     });
-    return await resp.json();
+    const text = await resp.text();
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      return { __html: text.substring(0, 300), __status: resp.status };
+    }
   });
+  if (tokenResult.__html) {
+    throw new Error('Risposta non-JSON (status ' + tokenResult.__status + '): ' + tokenResult.__html);
+  }
   const apiToken = tokenResult.results?.USER_TOKEN || '';
   if (!apiToken) throw new Error('No API token');
 
@@ -144,8 +152,24 @@ async function main() {
 
   try {
     log('Getting session...');
-    await page.goto('https://www.deezer.com/us/', { waitUntil: 'domcontentloaded', timeout: 20000 });
-    await delay(2000);
+    // retry in caso di challenge Cloudflare sul primo caricamento
+    for (let attempt = 0; attempt < 5; attempt++) {
+      await page.goto('https://www.deezer.com/us/', { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
+      await delay(3000);
+      const title = await page.title().catch(() => '');
+      const blocked = await page.evaluate(() => document.documentElement.outerHTML.substring(0, 2000).toLowerCase()).catch(() => '');
+      const hasChallenge = title.toLowerCase().includes('just a moment')
+        || title.toLowerCase().includes('captcha')
+        || blocked.includes('cf-challenge')
+        || blocked.includes('challenge-platform')
+        || blocked.includes('cloudflare');
+      if (!hasChallenge) {
+        log(`Sessione ok (title: "${title}")`);
+        break;
+      }
+      log(`Challenge Cloudflare rilevata (tentativo ${attempt + 1}/5), riprovo...`);
+      await delay(4000 * (attempt + 1));
+    }
 
     let created = 0;
     const today = new Date().toISOString();
