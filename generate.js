@@ -77,7 +77,7 @@ async function createOne(page) {
   const email    = `deezerbot${r(8)}@gmail.com`;
   const password = `Dz${r(10)}!A1`;
   const username = `dzuser${r(6)}`;
-  const age      = '28';
+  const age      = '18';
 
   log(`  -> registrazione form: ${email}`);
 
@@ -160,7 +160,7 @@ async function createOne(page) {
   await delay(300);
 
   try { await page.fill('#age', age); await delay(300); } catch {}
-  try { await page.selectOption('#identity', { index: 1 }); await delay(300); } catch {}
+  try { await page.selectOption('#identity', { label: 'Male' }); await delay(300); } catch {}
 
   // Aspetta che il pulsante sia cliccabile prima di premere
   try { await page.waitForSelector('button:has-text("Sign up for free")', { timeout: 5000 }); } catch {}
