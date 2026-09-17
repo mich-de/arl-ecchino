@@ -6,11 +6,21 @@ const TARGET_FILE = process.env.ARL_TARGET_FILE || 'arl.txt';
 const DAILY_COUNT = parseInt(process.env.ARL_DAILY_COUNT || '10', 10);
 const KEEP_DAYS = parseInt(process.env.ARL_KEEP_DAYS || '30', 10);
 
+const FIRST_NAMES = ['marco', 'luca', 'matteo', 'alessio', 'davide', 'andrea', 'simone', 'federico', 'lorenzo', 'gabriele', 'alex', 'chris', 'jordan', 'sam', 'daniel', 'robert'];
+const LAST_NAMES = ['rossi', 'bianchi', 'ferrari', 'ricci', 'marino', 'greco', 'bruno', 'conti', 'miller', 'smith', 'brown', 'wilson', 'taylor', 'clark'];
+
 function r(len) {
   const c = 'abcdefghijklmnopqrstuvwxyz0123456789';
   let s = '';
   for (let i = 0; i < len; i++) s += c[Math.floor(Math.random() * c.length)];
   return s;
+}
+
+function generateRealisticEmail() {
+  const f = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
+  const l = LAST_NAMES[Math.floor(Math.random() * LAST_NAMES.length)];
+  const n = Math.floor(100 + Math.random() * 900);
+  return `${f}.${l}${n}@gmail.com`;
 }
 
 function log(msg) { console.log(`[${new Date().toISOString()}] ${msg}`); }
@@ -49,7 +59,7 @@ async function trySession(launchOpts) {
   });
 
   await context.addInitScript(() => {
-    // Maschera automazione e incoerenze di piattaforma
+    // Evasione Akamai & Webdriver
     Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
     delete Object.getPrototypeOf(navigator).webdriver;
     Object.defineProperty(navigator, 'platform', { get: () => 'Win32' });
@@ -83,32 +93,52 @@ async function trySession(launchOpts) {
 }
 
 async function createOne(page) {
-  const email = `deezerbot${r(8)}@gmail.com`;
+  const email = generateRealisticEmail();
   const password = `Dz${r(10)}!A1`;
-  const username = `dzuser${r(6)}`;
+  const username = email.split('@')[0].replace('.', '') + r(2);
   const age = '18';
   const identity = 'M'; // Male
 
-  log(`  -> registrazione form: ${email}`);
+  log(`  -> registrazione form: ${email} (user: ${username})`);
 
-  // Monitora risposte di rete rilevanti (autenticazione / registrazione)
+  // Listener diagnostico per console ed errori JS nella pagina
+  const onConsole = (msg) => {
+    if (msg.type() === 'error') log(`  [BROWSER CONSOLE] ${msg.text()}`);
+  };
+  const onPageError = (err) => {
+    log(`  [BROWSER UNCAUGHT] ${err.message}`);
+  };
+  page.on('console', onConsole);
+  page.on('pageerror', onPageError);
+
+  // Monitora TUTTE le risposte POST e risposte di errore o connesse a registrazione
   const onResponse = async (resp) => {
-    const url = resp.url();
-    if (url.includes('signup') || url.includes('register') || url.includes('auth') || url.includes('ajax') || url.includes('gw-light') || url.includes('check')) {
+    try {
       const status = resp.status();
-      log(`  [NET] ${status} ${url.substring(0, 90)}`);
-      if (status >= 400 || url.includes('check') || url.includes('user.create')) {
-        try {
-          const text = await resp.text();
-          log(`  [NET BODY] ${text.substring(0, 250)}`);
-        } catch {}
+      const req = resp.request();
+      const method = req.method();
+      const url = resp.url();
+      const isRelevant = method === 'POST'
+        || status >= 400
+        || url.includes('gw-light')
+        || url.includes('checkform')
+        || url.includes('register')
+        || url.includes('user')
+        || url.includes('auth');
+
+      if (isRelevant) {
+        log(`  [NET ${method} ${status}] ${url.substring(0, 100)}`);
+        if (url.includes('gw-light') || url.includes('user') || status >= 400) {
+          const body = await resp.text().catch(() => '');
+          if (body) log(`  [NET BODY] ${body.substring(0, 300)}`);
+        }
       }
-    }
+    } catch {}
   };
   page.on('response', onResponse);
 
   try {
-    // Navigazione iniziale al form di registrazione
+    // Navigazione iniziale al form di registrazione Deezer
     await page.goto('https://account.deezer.com/en-us/signup/', {
       waitUntil: 'networkidle',
       timeout: 45000,
@@ -122,13 +152,9 @@ async function createOne(page) {
       '#gdpr-btn-accept',
       'button:has-text("Refuse")',
       'button:has-text("Reject")',
-      'button:has-text("Reject all")',
       'button:has-text("Accept")',
-      'button:has-text("Accept all")',
       '[data-testid="gdpr-refuse"]',
       '[data-testid="gdpr-accept"]',
-      '#didomi-notice-disagree-button',
-      '#didomi-notice-agree-button',
     ];
     for (const sel of cookieBtns) {
       try {
@@ -151,7 +177,6 @@ async function createOne(page) {
       'input[type="email"]',
       'input[name="email"]',
       'input[autocomplete="email"]',
-      'input[placeholder*="email" i]',
     ];
     let emailSel = null;
     for (const sel of emailSels) {
@@ -159,13 +184,12 @@ async function createOne(page) {
     }
     if (!emailSel) {
       await page.screenshot({ path: 'debug_no_email.png', fullPage: true }).catch(() => {});
-      const title = await page.title().catch(() => '');
-      throw new Error(`Campo email non trovato - url: ${page.url()} title: ${title}`);
+      throw new Error(`Campo email non trovato - url: ${page.url()}`);
     }
 
     await page.locator(emailSel).click();
-    await page.locator(emailSel).fill(email);
-    await delay(400);
+    await page.locator(emailSel).pressSequentially(email, { delay: 30 });
+    await delay(600);
     await page.click('button:has-text("Continue")');
     log('  -> Step 0 (Email) inviato');
     await delay(2000);
@@ -179,13 +203,13 @@ async function createOne(page) {
     }
 
     await page.locator('#password').click();
-    await page.locator('#password').fill(password);
-    await delay(400);
+    await page.locator('#password').pressSequentially(password, { delay: 30 });
+    await delay(600);
     await page.click('button:has-text("Continue")');
     log('  -> Step 1 (Password) inviato');
     await delay(2000);
 
-    // ── STEP 2: Dati personali (Username, Age: 18, Identity: Male) ───────────
+    // ── STEP 2: Personal Information (Username, Age: 18, Identity: Male) ───
     try {
       await page.waitForSelector('#username', { timeout: 15000 });
     } catch {
@@ -196,9 +220,10 @@ async function createOne(page) {
     // 1. Username
     const usernameInput = page.locator('#username');
     await usernameInput.click();
-    await usernameInput.fill(username);
+    await usernameInput.fill('');
+    await usernameInput.pressSequentially(username, { delay: 30 });
+    await delay(400);
     log(`  -> Username impostato: ${username}`);
-    await delay(300);
 
     // 2. Age (Chakra UI NumberInput / role=spinbutton)
     const ageInput = page.locator('#age');
@@ -207,7 +232,7 @@ async function createOne(page) {
     await ageInput.fill('');
     await ageInput.pressSequentially(age, { delay: 80 });
     await page.keyboard.press('Tab');
-    await delay(300);
+    await delay(400);
     const enteredAge = await ageInput.inputValue().catch(() => '');
     log(`  -> Age inserito: "${enteredAge}"`);
 
@@ -221,19 +246,16 @@ async function createOne(page) {
       catch { await identitySelect.selectOption({ index: 2 }); }
     }
     await identitySelect.dispatchEvent('change').catch(() => {});
-    await delay(300);
+    await delay(400);
     const enteredIdentity = await identitySelect.inputValue().catch(() => '');
     log(`  -> Identity selezionata: "${enteredIdentity}"`);
 
-    // 4. Verifica stato pulsante Submit
+    // 4. Verifica stato pulsante Submit e attendi debounce
+    await delay(1500);
     const submitBtn = page.locator('button:has-text("Sign up for free"), button[type="submit"]');
     await submitBtn.first().waitFor({ state: 'visible', timeout: 5000 });
     const isSubmitDisabled = await submitBtn.first().isDisabled().catch(() => false);
     log(`  -> Submit button disabilitato: ${isSubmitDisabled}`);
-
-    // Verifica eventuali errori prima del submit
-    const preErrors = await page.$$eval('[class*="error"], [role="alert"], .chakra-form__error-message', els => els.map(e => e.innerText.trim()).filter(Boolean)).catch(() => []);
-    if (preErrors.length) log(`  -> Errori prima di submit: ${preErrors.join(' | ')}`);
 
     // 5. Invio registrazione
     await submitBtn.first().click();
@@ -258,7 +280,7 @@ async function createOne(page) {
     let allCookies = await page.context().cookies();
     let arlCookie = allCookies.find(c => c.name === 'arl' && c.value);
 
-    // Se l'ARL non è presente subito (o siamo su offers/account), naviga su www.deezer.com/us/
+    // Se l'ARL non è presente subito, naviga su https://www.deezer.com/us/
     if (!arlCookie) {
       log('  -> ARL non immediato, navigo su https://www.deezer.com/us/ per aggiornare la sessione...');
       await page.goto('https://www.deezer.com/us/', { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
@@ -279,6 +301,8 @@ async function createOne(page) {
     return { arl: arlCookie.value, email, password, username };
   } finally {
     page.off('response', onResponse);
+    page.off('console', onConsole);
+    page.off('pageerror', onPageError);
   }
 }
 
