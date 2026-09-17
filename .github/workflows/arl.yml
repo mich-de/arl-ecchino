@@ -35,6 +35,7 @@ jobs:
           ARL_KEEP_DAYS: '30'
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          PROXY_URL: ${{ secrets.PROXY_URL }}
         run: node generate.js
 
       - name: Commit arls.json

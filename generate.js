@@ -148,10 +148,15 @@ async function main() {
   });
   log(`ARL esistenti: ${existing.length}, validi dopo prune (<${KEEP_DAYS}g): ${valid.length}`);
 
-  const browser = await chromium.launch({
+  const launchOpts = {
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-blink-features=AutomationControlled'],
-  });
+  };
+  if (process.env.PROXY_URL) {
+    launchOpts.proxy = { server: process.env.PROXY_URL };
+    log(`Proxy configurato: ${process.env.PROXY_URL}`);
+  }
+  const browser = await chromium.launch(launchOpts);
 
   const context = await browser.newContext({
     userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
