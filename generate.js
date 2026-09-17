@@ -85,17 +85,11 @@ async function createOne(page) {
 
   log(`  → registrazione form: ${email}`);
 
-  // Naviga via www.deezer.com (proxy-safe) che redirige a account.deezer.com
-  // NON navigare direttamente a account.deezer.com: il proxy lo blocca
-  await page.goto('https://www.deezer.com/us/register', {
+  // Naviga direttamente a account.deezer.com (bypass proxy — connessione diretta)
+  await page.goto('https://account.deezer.com/en-us/signup/', {
     waitUntil: 'domcontentloaded',
     timeout: 30000,
   }).catch(() => {});
-
-  // Aspetta che il redirect a account.deezer.com si completi
-  try {
-    await page.waitForURL('**/signup/**', { timeout: 15000 });
-  } catch {}
   await delay(4000); // SPA React: aspetta mount completo
 
   // Accetta cookie banner se presente
@@ -203,8 +197,12 @@ async function main() {
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-blink-features=AutomationControlled'],
   };
   if (process.env.PROXY_URL) {
-    launchOpts.proxy = { server: process.env.PROXY_URL };
-    log(`Proxy configurato: ${process.env.PROXY_URL}`);
+    launchOpts.proxy = {
+      server: process.env.PROXY_URL,
+      // account.deezer.com via connessione diretta: il proxy blocca il redirect cross-domain
+      bypass: 'account.deezer.com',
+    };
+    log(`Proxy configurato: ${process.env.PROXY_URL.replace(/:[^@]+@/, ':***@')}`);
   }
   const browser = await chromium.launch(launchOpts);
 
@@ -243,6 +241,15 @@ async function main() {
         log(`Challenge Cloudflare rilevata (tentativo ${attempt + 1}/5), riprovo...`);
       }
       await delay(5000 * (attempt + 1));
+    }
+
+    // Controllo finale: se il titolo è ancora vuoto il proxy/rete è KO
+    {
+      const finalTitle = await page.title().catch(() => '');
+      const finalUrl   = page.url();
+      if (finalTitle.trim() === '' || finalUrl.startsWith('chrome-error://')) {
+        throw new Error(`Sessione non ottenuta (title: "${finalTitle}", url: ${finalUrl}) — proxy KO?`);
+      }
     }
 
     let created = 0;
