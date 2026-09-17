@@ -1,4 +1,4 @@
-﻿const { chromium } = require('playwright');
+const { chromium } = require('playwright');
 const fs = require('fs');
 
 const DATA_FILE   = process.env.ARL_DATA_FILE  || 'arls.json';
@@ -123,15 +123,34 @@ async function createOne(page) {
   try { await page.fill('#age', age); await delay(300); } catch {}
   try { await page.selectOption('#identity', { index: 1 }); await delay(300); } catch {}
 
+  // Aspetta che il pulsante sia cliccabile prima di premere
+  try { await page.waitForSelector('button:has-text("Sign up for free")', { timeout: 5000 }); } catch {}
   await page.click('button:has-text("Sign up for free")');
+  log('  -> Submit cliccato, attendo navigazione post-registrazione...');
   await Promise.race([
-    page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 20000 }),
-    delay(20000),
+    page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 25000 }),
+    delay(25000),
   ]).catch(() => {});
   await delay(3000);
+  log(`  -> URL post-submit: ${page.url()}`);
 
-  const allCookies = await page.context().cookies(['https://www.deezer.com', 'https://account.deezer.com']);
-  const arlCookie  = allCookies.find(c => c.name === 'arl');
+  // Se siamo ancora su account.deezer.com, naviga su www.deezer.com
+  // L'ARL cookie viene impostato dopo il redirect alla home
+  if (page.url().includes('account.deezer.com') || page.url().includes('signup')) {
+    log('  -> Navigo su www.deezer.com per ottenere il cookie ARL...');
+    await page.goto('https://www.deezer.com/us/', { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
+    await delay(3000);
+    log(`  -> URL dopo redirect: ${page.url()}`);
+  }
+
+  // Leggi cookie da tutti i domini Deezer
+  const allCookies = await page.context().cookies([
+    'https://www.deezer.com',
+    'https://account.deezer.com',
+    'https://deezer.com',
+  ]);
+  log(`  -> Cookie trovati: ${allCookies.map(c => c.name).join(', ') || 'nessuno'}`);
+  const arlCookie = allCookies.find(c => c.name === 'arl');
   if (!arlCookie?.value) {
     const snippet = await page.evaluate(() => document.body?.innerText?.substring(0, 400) || '').catch(() => '');
     await page.screenshot({ path: 'debug_no_arl.png', fullPage: true }).catch(() => {});
