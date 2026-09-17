@@ -31,7 +31,7 @@ jobs:
 
       - name: Genera 10 ARL
         env:
-          ARL_DAILY_COUNT: '10'
+          ARL_DAILY_COUNT: '1'
           ARL_KEEP_DAYS: '30'
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}

@@ -1,10 +1,10 @@
 const { chromium } = require('playwright');
 const fs = require('fs');
 
-const DATA_FILE = process.env.ARL_DATA_FILE || 'arls.json';
+const DATA_FILE   = process.env.ARL_DATA_FILE  || 'arls.json';
 const TARGET_FILE = process.env.ARL_TARGET_FILE || 'arl.txt';
 const DAILY_COUNT = parseInt(process.env.ARL_DAILY_COUNT || '10', 10);
-const KEEP_DAYS = parseInt(process.env.ARL_KEEP_DAYS || '30', 10);
+const KEEP_DAYS   = parseInt(process.env.ARL_KEEP_DAYS   || '30', 10);
 
 function r(len) {
   const c = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -15,6 +15,31 @@ function r(len) {
 
 function log(msg) { console.log(`[${new Date().toISOString()}] ${msg}`); }
 function delay(ms) { return new Promise(res => setTimeout(res, ms)); }
+
+// ---------------------------------------------------------------------------
+// Cookie / GDPR banner dismissal
+// ---------------------------------------------------------------------------
+async function acceptCookies(page) {
+  const selectors = [
+    '#gdpr-btn-accept-all',
+    'button[data-testid="gdpr-btn-accept-all"]',
+    '[data-testid*="accept-all"]',
+    'button:has-text("Accept all")',
+    'button:has-text("Accept All")',
+    'button:has-text("I accept")',
+    'button:has-text("Agree")',
+    '#didomi-notice-agree-button',
+    '.gdpr-btn-accept',
+  ];
+  for (const sel of selectors) {
+    try {
+      await page.click(sel, { timeout: 1500 });
+      await delay(700);
+      return true;
+    } catch {}
+  }
+  return false;
+}
 
 async function sendTelegram(text) {
   const token = process.env.TG_BOT_TOKEN;
@@ -48,92 +73,159 @@ function loadExisting() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// UI-based registration — evita il blocco WAF su gw-light.php?method=user.create
+// ---------------------------------------------------------------------------
 async function createOne(page) {
-  const email = `deezerbot${r(8)}@outlook.com`;
+  const email    = `deezerbot${r(8)}@gmail.com`;
   const password = `Dz${r(10)}!A1`;
   const username = `dzuser${r(6)}`;
 
-  const tokenResult = await page.evaluate(async () => {
-    const resp = await fetch('https://www.deezer.com/ajax/gw-light.php?method=deezer.getUserData&input=3&api_version=1.0.0&api_token=&cid=' + Math.floor(Math.random() * 999999), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ APP_NAME: 'Deezer' }),
-      credentials: 'include',
-    });
-    const text = await resp.text();
-    try {
-      return JSON.parse(text);
-    } catch (e) {
-      return { __html: text.substring(0, 300), __status: resp.status };
-    }
-  });
-  if (tokenResult.__html) {
-    throw new Error('Risposta non-JSON (status ' + tokenResult.__status + '): ' + tokenResult.__html);
-  }
-  const apiToken = tokenResult.results?.USER_TOKEN || '';
-  if (!apiToken) throw new Error('No API token');
+  log(`  → registrazione form: ${email}`);
 
-  const createResult = await page.evaluate(async (params) => {
-    const { token, email, password, username } = params;
-    const resp = await fetch(`https://www.deezer.com/ajax/gw-light.php?method=user.create&input=3&api_version=1.0.0&api_token=${token}&cid=${Math.floor(Math.random() * 999999)}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        APP_NAME: 'Deezer',
-        EMAIL: email,
-        PASSWORD: password,
-        BLOG_NAME: username,
-        SEX: 'M',
-        BIRTHDAY: '1995-06-15',
-        JOURNEY_VERSION: 'unlogged_smart_and_login_web_v1',
-      }),
-      credentials: 'include',
-    });
-    const text = await resp.text();
-    try {
-      return JSON.parse(text);
-    } catch (e) {
-      return { __html: text.substring(0, 300), __status: resp.status };
-    }
-  }, { token: apiToken, email, password, username });
+  // Naviga alla pagina di registrazione
+  await page.goto('https://www.deezer.com/us/register', {
+    waitUntil: 'domcontentloaded',
+    timeout: 30000,
+  }).catch(() => {});
+  await delay(3000);
 
-  if (createResult.results?.arl) {
-    return { arl: createResult.results.arl, email, password, username };
+  // Accetta cookie se compare il banner
+  await acceptCookies(page);
+
+  // Controlla blocco WAF
+  const bodyText = await page.evaluate(() => document.body?.innerText || '').catch(() => '');
+  if (bodyText.toLowerCase().includes('access denied')) {
+    await page.screenshot({ path: 'debug_register_blocked.png', fullPage: true }).catch(() => {});
+    throw new Error('Pagina di registrazione bloccata (Access Denied)');
   }
-  if (createResult.__html) {
-    throw new Error('user.create bloccato (status ' + createResult.__status + '): ' + createResult.__html);
+
+  // ── Email ──────────────────────────────────────────────────────────────
+  const emailSels = [
+    'input[name="email"]',
+    'input[type="email"]',
+    'input[placeholder*="email" i]',
+    '#email',
+    '#signup-email',
+  ];
+  let emailFilled = false;
+  for (const sel of emailSels) {
+    try {
+      await page.waitForSelector(sel, { timeout: 4000 });
+      await page.fill(sel, email);
+      emailFilled = true;
+      break;
+    } catch {}
   }
-  if (createResult.error?.REQUEST_ERROR === 'email_already_used') {
-    // email collision: retry once with a new email
-    const email2 = `deezerbot${r(8)}@outlook.com`;
-    const createResult2 = await page.evaluate(async (params) => {
-      const { token, email, password, username } = params;
-      const resp = await fetch(`https://www.deezer.com/ajax/gw-light.php?method=user.create&input=3&api_version=1.0.0&api_token=${token}&cid=${Math.floor(Math.random() * 999999)}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          APP_NAME: 'Deezer',
-          EMAIL: email,
-          PASSWORD: password,
-          BLOG_NAME: username,
-          SEX: 'M',
-          BIRTHDAY: '1995-06-15',
-          JOURNEY_VERSION: 'unlogged_smart_and_login_web_v1',
-        }),
-        credentials: 'include',
-      });
-      const text = await resp.text();
-      try {
-        return JSON.parse(text);
-      } catch (e) {
-        return { __html: text.substring(0, 300), __status: resp.status };
-      }
-    }, { token: apiToken, email: email2, password, username });
-    if (createResult2.results?.arl) {
-      return { arl: createResult2.results.arl, email: email2, password, username };
+  if (!emailFilled) {
+    await page.screenshot({ path: 'debug_no_email_field.png', fullPage: true }).catch(() => {});
+    const title = await page.title().catch(() => 'n/a');
+    throw new Error(`Campo email non trovato — title: "${title}" url: ${page.url()}`);
+  }
+  await delay(400 + Math.random() * 300);
+
+  // ── Password ───────────────────────────────────────────────────────────
+  const passSels = [
+    'input[name="password"]',
+    'input[type="password"]',
+    'input[placeholder*="password" i]',
+    '#password',
+    '#signup-password',
+  ];
+  for (const sel of passSels) {
+    try {
+      const el = await page.$(sel);
+      if (el) { await el.fill(password); break; }
+    } catch {}
+  }
+  await delay(400 + Math.random() * 200);
+
+  // ── Username / blog_name (opzionale) ───────────────────────────────────
+  const nameSels = [
+    'input[name="blog_name"]',
+    'input[name="username"]',
+    'input[name="name"]',
+    'input[placeholder*="username" i]',
+  ];
+  for (const sel of nameSels) {
+    try {
+      const el = await page.$(sel);
+      if (el) { await el.fill(username); break; }
+    } catch {}
+  }
+  await delay(300);
+
+  // ── Data di nascita (dropdown o input date) ────────────────────────────
+  try {
+    const dayEl = await page.$('select[name="day"], select[name="birth_day"], select[name="birthDay"]');
+    if (dayEl) await dayEl.selectOption('15');
+
+    const monthEl = await page.$('select[name="month"], select[name="birth_month"], select[name="birthMonth"]');
+    if (monthEl) await monthEl.selectOption('6');
+
+    const yearEl = await page.$('select[name="year"], select[name="birth_year"], select[name="birthYear"]');
+    if (yearEl) await yearEl.selectOption('1995');
+
+    const dateEl = await page.$('input[type="date"][name*="birth"], input[name="birthday"]');
+    if (dateEl) await dateEl.fill('1995-06-15');
+  } catch {}
+  await delay(300);
+
+  // ── Genere (opzionale) ────────────────────────────────────────────────
+  try {
+    const genderSel = await page.$('select[name="sex"], select[name="gender"]');
+    if (genderSel) {
+      await genderSel.selectOption('M');
+    } else {
+      const maleRadio = await page.$('input[name="sex"][value="M"], input[name="gender"][value="M"]');
+      if (maleRadio && !(await maleRadio.isChecked())) await maleRadio.click();
     }
+  } catch {}
+  await delay(300);
+
+  // ── Checkbox termini (opzionale) ──────────────────────────────────────
+  try {
+    const chk = await page.$('input[type="checkbox"][name*="cgu"], input[type="checkbox"][name*="terms"]');
+    if (chk && !(await chk.isChecked())) await chk.click();
+  } catch {}
+  await delay(400);
+
+  // ── Submit ─────────────────────────────────────────────────────────────
+  const submitSels = [
+    'button[type="submit"]',
+    'input[type="submit"]',
+    'button:has-text("Create")',
+    'button:has-text("Register")',
+    'button:has-text("Sign up")',
+    'button:has-text("Get started")',
+  ];
+  for (const sel of submitSels) {
+    try {
+      const btn = await page.$(sel);
+      if (btn) { await btn.click(); break; }
+    } catch {}
   }
-  throw new Error('Creazione fallita: ' + JSON.stringify(createResult.error || createResult));
+
+  // Attendi navigazione post-registrazione
+  await Promise.race([
+    page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 15000 }),
+    delay(15000),
+  ]).catch(() => {});
+  await delay(2500);
+
+  // ── Estrai ARL dai cookie ─────────────────────────────────────────────
+  const cookies   = await page.context().cookies(['https://www.deezer.com']);
+  const arlCookie = cookies.find(c => c.name === 'arl');
+  if (!arlCookie?.value) {
+    const currentUrl  = page.url();
+    const pageSnippet = await page.evaluate(
+      () => document.body?.innerText?.substring(0, 400) || ''
+    ).catch(() => '');
+    await page.screenshot({ path: 'debug_no_arl.png', fullPage: true }).catch(() => {});
+    throw new Error(`ARL non trovato. URL: ${currentUrl} | Pagina: ${pageSnippet.substring(0, 150)}`);
+  }
+
+  return { arl: arlCookie.value, email, password, username };
 }
 
 async function main() {
