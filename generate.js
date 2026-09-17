@@ -124,30 +124,6 @@ async function createOne(page) {
   page.on('console', onConsole);
   page.on('pageerror', onPageError);
 
-  await page.route('**/*gw-light.php*', async (route) => {
-    try {
-      const request = route.request();
-      const response = await route.fetch();
-      const headers = Object.assign({}, response.headers());
-      
-      headers['access-control-allow-origin'] = 'https://account.deezer.com';
-      headers['access-control-allow-credentials'] = 'true';
-      headers['access-control-allow-headers'] = '*';
-      
-      let body;
-      try { body = await response.body(); } catch (e) {}
-
-      if (request.method() === 'POST' && request.postData()?.includes('user_create')) {
-        log(`  [CORS INJECT] user_create status: ${response.status()}`);
-        if (body) log(`  [CORS INJECT] user_create body: ${body.toString().substring(0, 300)}`);
-      }
-      
-      await route.fulfill({ response, headers, body });
-    } catch (e) {
-      await route.continue().catch(() => {});
-    }
-  });
-
   const onResponse = async (resp) => {
     try {
       const status = resp.status();
