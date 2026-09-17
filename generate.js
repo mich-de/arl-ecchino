@@ -79,9 +79,7 @@ async function trySession(launchOpts) {
   });
 
   await context.addInitScript(() => {
-    Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
-    delete Object.getPrototypeOf(navigator).webdriver;
-    window.chrome = { runtime: {} };
+    Object.defineProperty(navigator, 'webdriver', { get: () => false });
   });
 
   const page = await context.newPage();
@@ -98,7 +96,7 @@ async function trySession(launchOpts) {
     const pageEmpty = title.trim() === '' || page.url().startsWith('chrome-error://');
     if (!hasChallenge && !pageEmpty) {
       log(`Sessione ok (title: "${title}")`);
-      return { browser, page };
+      return { browser, page, context };
     }
     const reason = pageEmpty ? `vuota/errore (url: ${page.url()})` : 'challenge Cloudflare';
     log(`Sessione ${reason} - tentativo ${attempt + 1}/3`);
@@ -108,69 +106,60 @@ async function trySession(launchOpts) {
   return null;
 }
 
-async function createOne(page) {
+async function createOne(page, context) {
   const email = generateRealisticEmail();
   const password = `Dz${r(10)}!A1`;
   const username = email.split('@')[0].replace('.', '') + r(2);
 
-  log(`  -> registrazione API (in-browser): ${email} (user: ${username})`);
+  log(`  -> registrazione API (native OkHttp-style): ${email} (user: ${username})`);
 
-  // Navigazione iniziale per ottenere il contesto corretto (cookie, origine) e il fingerprint Chromium
+  // Sessione Akamai già stabilita da trySession; refresh rapido per cookie aggiornati
   await page.goto('https://www.deezer.com/us/', { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
-  await delay(2000);
-  
-  const result = await page.evaluate(async (params) => {
-    const { email, password, username } = params;
-    const cid = Math.floor(Math.random() * 999999);
-    
-    // 1. Fetch anonymous API token
-    const r1 = await fetch(`https://www.deezer.com/ajax/gw-light.php?method=deezer.getUserData&input=3&api_version=1.0&api_token=&cid=${cid}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ APP_NAME: "Deezer" })
-    });
-    const t1 = await r1.text();
-    let j1;
-    try { j1 = JSON.parse(t1); } catch(e) { return { error: "Token parse fail", text: t1.substring(0,200) }; }
-    
-    const apiToken = j1.results?.USER_TOKEN;
-    if (!apiToken) return { error: "No USER_TOKEN", response: j1 };
+  await delay(2500);
 
-    // 2. Create account using user.create (Velune-doped method)
-    const r2 = await fetch(`https://www.deezer.com/ajax/gw-light.php?method=user.create&input=3&api_version=1.0&api_token=${apiToken}&cid=${cid}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        APP_NAME: "Deezer",
-        EMAIL: email,
-        PASSWORD: password,
-        BLOG_NAME: username,
-        SEX: "M",
-        BIRTHDAY: "1995-06-15",
-        JOURNEY_VERSION: "unlogged_smart_and_login_web_v1"
-      })
-    });
-    const t2 = await r2.text();
-    let j2;
-    try { j2 = JSON.parse(t2); } catch(e) { return { error: "Create parse fail", text: t2.substring(0,200) }; }
-    
-    return { arl: j2?.results?.arl, response: j2 };
-  }, { email, password, username });
+  const cid = Math.floor(Math.random() * 999999);
+  const gw = 'https://www.deezer.com/ajax/gw-light.php';
 
-  if (result.error) {
-    throw new Error(`API Fallita: ${result.error} | Data: ${JSON.stringify(result.text || result.response)}`);
-  }
-  
-  if (result.response?.error && Object.keys(result.response.error).length > 0) {
-    throw new Error(`Errore API Deezer: ${JSON.stringify(result.response.error)}`);
+  // 1. Native HTTP (context.request): token API anonimo
+  const r1 = await context.request.post(`${gw}?method=deezer.getUserData&input=3&api_version=1.0.0&api_token=&cid=${cid}`, {
+    headers: { 'Content-Type': 'application/json' },
+    data: JSON.stringify({ APP_NAME: 'Deezer' }),
+  });
+  const t1 = await r1.text();
+  let j1;
+  try { j1 = JSON.parse(t1); } catch (e) { throw new Error(`API Fallita: Token parse fail | Data: ${t1.substring(0, 200)}`); }
+
+  const apiToken = j1.results?.USER_TOKEN;
+  if (!apiToken) throw new Error(`API Fallita: No USER_TOKEN | Data: ${JSON.stringify(j1).substring(0, 300)}`);
+
+  // 2. Native HTTP (context.request): user.create -> ARL immediato
+  const r2 = await context.request.post(`${gw}?method=user.create&input=3&api_version=1.0.0&api_token=${apiToken}&cid=${cid}`, {
+    headers: { 'Content-Type': 'application/json' },
+    data: JSON.stringify({
+      APP_NAME: 'Deezer',
+      EMAIL: email,
+      PASSWORD: password,
+      BLOG_NAME: username,
+      SEX: 'M',
+      BIRTHDAY: '1995-06-15',
+      JOURNEY_VERSION: 'unlogged_smart_and_login_web_v1',
+    }),
+  });
+  const t2 = await r2.text();
+  let j2;
+  try { j2 = JSON.parse(t2); } catch (e) { throw new Error(`API Fallita: Create parse fail | Data: ${t2.substring(0, 200)}`); }
+
+  if (j2?.error && Object.keys(j2.error).length > 0) {
+    throw new Error(`Errore API Deezer: ${JSON.stringify(j2.error)}`);
   }
 
-  if (!result.arl) {
-    throw new Error(`ARL non restituito dall'API: ${JSON.stringify(result.response).substring(0,300)}`);
+  const arl = j2?.results?.arl;
+  if (!arl) {
+    throw new Error(`ARL non restituito dall'API: ${JSON.stringify(j2).substring(0, 300)}`);
   }
 
   log(`  -> API call success: ARL ottenuto!`);
-  return { arl: result.arl, email, password, username };
+  return { arl, email, password, username };
 }
 
 async function main() {
@@ -192,8 +181,6 @@ async function main() {
       '--disable-blink-features=AutomationControlled',
       '--disable-infobars',
       '--window-size=1280,800',
-      '--disable-web-security',
-      '--disable-features=IsolateOrigins,site-per-process',
     ],
   };
 
@@ -205,7 +192,7 @@ async function main() {
     return;
   }
 
-  const { browser, page } = sessionResult;
+  const { browser, page, context } = sessionResult;
 
   try {
     let created = 0;
@@ -214,7 +201,7 @@ async function main() {
 
     for (let i = 0; i < DAILY_COUNT; i++) {
       try {
-        const rec = await createOne(page);
+        const rec = await createOne(page, context);
         const entry = { ...rec, created: today };
         valid.push(entry);
         fresh.push(entry);
