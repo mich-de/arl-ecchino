@@ -119,10 +119,14 @@ async function createOne(page, context) {
 
   const cid = Math.floor(Math.random() * 999999);
   const gw = 'https://www.deezer.com/ajax/gw-light.php';
+  const appHeaders = {
+    'User-Agent': 'Mozilla/5.0 DeezerKotlin/1.0',
+    'Content-Type': 'application/json',
+  };
 
   // 1. Native HTTP (context.request): token API anonimo
-  const r1 = await context.request.post(`${gw}?method=deezer.getUserData&input=3&api_version=1.0.0&api_token=&cid=${cid}`, {
-    headers: { 'Content-Type': 'application/json' },
+  const r1 = await context.request.post(`${gw}?method=deezer.getUserData&input=3&api_version=1.0&api_token=&cid=${cid}`, {
+    headers: appHeaders,
     data: JSON.stringify({ APP_NAME: 'Deezer' }),
   });
   const t1 = await r1.text();
@@ -133,8 +137,8 @@ async function createOne(page, context) {
   if (!apiToken) throw new Error(`API Fallita: No USER_TOKEN | Data: ${JSON.stringify(j1).substring(0, 300)}`);
 
   // 2. Native HTTP (context.request): user.create -> ARL immediato
-  const r2 = await context.request.post(`${gw}?method=user.create&input=3&api_version=1.0.0&api_token=${apiToken}&cid=${cid}`, {
-    headers: { 'Content-Type': 'application/json' },
+  const r2 = await context.request.post(`${gw}?method=user.create&input=3&api_version=1.0&api_token=${apiToken}&cid=${cid}`, {
+    headers: appHeaders,
     data: JSON.stringify({
       APP_NAME: 'Deezer',
       EMAIL: email,
@@ -183,6 +187,10 @@ async function main() {
       '--window-size=1280,800',
     ],
   };
+  if (process.env.PROXY_URL) {
+    launchOpts.proxy = { server: process.env.PROXY_URL };
+    log(`Proxy configurato: ${process.env.PROXY_URL}`);
+  }
 
   log('Getting session...');
   const sessionResult = await trySession(launchOpts);
