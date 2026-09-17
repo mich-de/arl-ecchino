@@ -81,8 +81,13 @@ async function createOne(page) {
 
   log(`  -> registrazione form: ${email}`);
 
-  await page.goto('https://account.deezer.com/en-us/signup/', { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
-  await delay(4000);
+  // networkidle assicura che la SPA React abbia completato il rendering
+  await page.goto('https://account.deezer.com/en-us/signup/', {
+    waitUntil: 'networkidle',
+    timeout: 45000,
+  }).catch(() => {});
+  await delay(2000);
+  log(`  -> URL dopo goto: ${page.url()}`);
 
   try { await page.click('button:has-text("Accept")', { timeout: 3000 }); await delay(800); } catch {}
 
@@ -92,17 +97,29 @@ async function createOne(page) {
     throw new Error('Pagina di registrazione bloccata (Access Denied)');
   }
 
-  try { await page.waitForSelector('#email', { timeout: 15000 }); }
-  catch {
-    await page.screenshot({ path: 'debug_no_email.png', fullPage: true }).catch(() => {});
-    throw new Error(`Campo #email non trovato - url: ${page.url()}`);
+  // ── STEP 1: Email — prova piu selettori ────────────────────────────────
+  const emailSels = [
+    '#email',
+    'input[type="email"]',
+    'input[name="email"]',
+    'input[autocomplete="email"]',
+    'input[placeholder*="email" i]',
+  ];
+  let emailSel = null;
+  for (const sel of emailSels) {
+    try { await page.waitForSelector(sel, { timeout: 6000 }); emailSel = sel; break; } catch {}
   }
-  await page.fill('#email', email);
+  if (!emailSel) {
+    await page.screenshot({ path: 'debug_no_email.png', fullPage: true }).catch(() => {});
+    const title = await page.title().catch(() => '');
+    throw new Error(`Campo email non trovato - url: ${page.url()} title: ${title}`);
+  }
+  await page.fill(emailSel, email);
   await delay(400 + Math.random() * 300);
   await page.click('button:has-text("Continue")');
   await delay(2500);
 
-  try { await page.waitForSelector('#password', { timeout: 8000 }); }
+  try { await page.waitForSelector('#password', { timeout: 15000 }); }
   catch {
     await page.screenshot({ path: 'debug_no_password.png', fullPage: true }).catch(() => {});
     throw new Error(`Campo #password non trovato - url: ${page.url()}`);
@@ -110,9 +127,9 @@ async function createOne(page) {
   await page.fill('#password', password);
   await delay(400 + Math.random() * 200);
   await page.click('button:has-text("Continue")');
-  await delay(2000);
+  await delay(2500);
 
-  try { await page.waitForSelector('#username', { timeout: 8000 }); }
+  try { await page.waitForSelector('#username', { timeout: 15000 }); }
   catch {
     await page.screenshot({ path: 'debug_no_username.png', fullPage: true }).catch(() => {});
     throw new Error(`Campo #username non trovato - url: ${page.url()}`);
