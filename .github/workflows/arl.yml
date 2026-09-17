@@ -37,7 +37,16 @@ jobs:
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
         run: node generate.js
 
+      - name: Upload debug screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-screenshots
+          path: debug_*.png
+          if-no-files-found: ignore
+
       - name: Commit arls.json
+        if: success()
         run: |
           git config user.name "arl-ecchino bot"
           git config user.email "actions@users.noreply.github.com"

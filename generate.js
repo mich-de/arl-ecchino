@@ -41,14 +41,23 @@ function loadExisting() {
 async function trySession(launchOpts) {
   const browser = await chromium.launch(launchOpts);
   const context = await browser.newContext({
-    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
     locale: 'en-US',
     timezoneId: 'America/New_York',
+    viewport: { width: 1280, height: 800 },
     ignoreHTTPSErrors: true,
   });
+
   await context.addInitScript(() => {
-    Object.defineProperty(navigator, 'webdriver', { get: () => false });
+    // Maschera automazione e incoerenze di piattaforma
+    Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+    delete Object.getPrototypeOf(navigator).webdriver;
+    Object.defineProperty(navigator, 'platform', { get: () => 'Win32' });
+    Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
+    Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
+    window.chrome = { runtime: {} };
   });
+
   const page = await context.newPage();
 
   for (let attempt = 0; attempt < 3; attempt++) {
@@ -77,122 +86,200 @@ async function createOne(page) {
   const email = `deezerbot${r(8)}@gmail.com`;
   const password = `Dz${r(10)}!A1`;
   const username = `dzuser${r(6)}`;
-  const age = '28';
+  const age = '18';
+  const identity = 'M'; // Male
 
   log(`  -> registrazione form: ${email}`);
 
-  // networkidle assicura che la SPA React abbia completato il rendering
-  await page.goto('https://account.deezer.com/en-us/signup/', {
-    waitUntil: 'networkidle',
-    timeout: 45000,
-  }).catch(() => { });
-  await delay(2000);
-  log(`  -> URL dopo goto: ${page.url()}`);
+  // Monitora risposte di rete rilevanti (autenticazione / registrazione)
+  const onResponse = async (resp) => {
+    const url = resp.url();
+    if (url.includes('signup') || url.includes('register') || url.includes('auth') || url.includes('ajax') || url.includes('gw-light') || url.includes('check')) {
+      const status = resp.status();
+      log(`  [NET] ${status} ${url.substring(0, 90)}`);
+      if (status >= 400 || url.includes('check') || url.includes('user.create')) {
+        try {
+          const text = await resp.text();
+          log(`  [NET BODY] ${text.substring(0, 250)}`);
+        } catch {}
+      }
+    }
+  };
+  page.on('response', onResponse);
 
-  // Chiudi il popup cookie ("A note about our cookies") — blocca il form se non chiuso
-  // Selettori esatti da ispezione DOM account.deezer.com
-  const cookieBtns = [
-    '#gdpr-btn-refuse',              // esatto — da ispezione
-    '#gdpr-btn-accept',              // fallback
-    'button:has-text("Refuse")',
-    'button:has-text("Reject")',
-    'button:has-text("Reject all")',
-    'button:has-text("Accept")',
-    'button:has-text("Accept all")',
-    '[data-testid="gdpr-refuse"]',
-    '[data-testid="gdpr-accept"]',
-    '#didomi-notice-disagree-button',
-    '#didomi-notice-agree-button',
-  ];
-  for (const sel of cookieBtns) {
+  try {
+    // Navigazione iniziale al form di registrazione
+    await page.goto('https://account.deezer.com/en-us/signup/', {
+      waitUntil: 'networkidle',
+      timeout: 45000,
+    }).catch(() => {});
+    await delay(2000);
+    log(`  -> URL dopo goto: ${page.url()}`);
+
+    // Gestione popup Cookie ("A note about our cookies")
+    const cookieBtns = [
+      '#gdpr-btn-refuse',
+      '#gdpr-btn-accept',
+      'button:has-text("Refuse")',
+      'button:has-text("Reject")',
+      'button:has-text("Reject all")',
+      'button:has-text("Accept")',
+      'button:has-text("Accept all")',
+      '[data-testid="gdpr-refuse"]',
+      '[data-testid="gdpr-accept"]',
+      '#didomi-notice-disagree-button',
+      '#didomi-notice-agree-button',
+    ];
+    for (const sel of cookieBtns) {
+      try {
+        await page.click(sel, { timeout: 2000 });
+        log(`  -> Cookie popup chiuso (${sel})`);
+        await delay(800);
+        break;
+      } catch {}
+    }
+
+    const bodyText = await page.evaluate(() => document.body?.innerText || '').catch(() => '');
+    if (bodyText.toLowerCase().includes('access denied')) {
+      await page.screenshot({ path: 'debug_signup_blocked.png', fullPage: true }).catch(() => {});
+      throw new Error('Pagina di registrazione bloccata (Access Denied)');
+    }
+
+    // ── STEP 0: Email ───────────────────────────────────────────────────────
+    const emailSels = [
+      '#email',
+      'input[type="email"]',
+      'input[name="email"]',
+      'input[autocomplete="email"]',
+      'input[placeholder*="email" i]',
+    ];
+    let emailSel = null;
+    for (const sel of emailSels) {
+      try { await page.waitForSelector(sel, { timeout: 6000 }); emailSel = sel; break; } catch {}
+    }
+    if (!emailSel) {
+      await page.screenshot({ path: 'debug_no_email.png', fullPage: true }).catch(() => {});
+      const title = await page.title().catch(() => '');
+      throw new Error(`Campo email non trovato - url: ${page.url()} title: ${title}`);
+    }
+
+    await page.locator(emailSel).click();
+    await page.locator(emailSel).fill(email);
+    await delay(400);
+    await page.click('button:has-text("Continue")');
+    log('  -> Step 0 (Email) inviato');
+    await delay(2000);
+
+    // ── STEP 1: Password ────────────────────────────────────────────────────
     try {
-      await page.click(sel, { timeout: 2000 });
-      log(`  -> Cookie popup chiuso (${sel})`);
-      await delay(800);
-      break;
-    } catch { }
-  }
+      await page.waitForSelector('#password', { timeout: 15000 });
+    } catch {
+      await page.screenshot({ path: 'debug_no_password.png', fullPage: true }).catch(() => {});
+      throw new Error(`Campo #password non trovato - url: ${page.url()}`);
+    }
 
-  const bodyText = await page.evaluate(() => document.body?.innerText || '').catch(() => '');
-  if (bodyText.toLowerCase().includes('access denied')) {
-    await page.screenshot({ path: 'debug_signup_blocked.png', fullPage: true }).catch(() => { });
-    throw new Error('Pagina di registrazione bloccata (Access Denied)');
-  }
+    await page.locator('#password').click();
+    await page.locator('#password').fill(password);
+    await delay(400);
+    await page.click('button:has-text("Continue")');
+    log('  -> Step 1 (Password) inviato');
+    await delay(2000);
 
-  // ── STEP 1: Email — prova piu selettori ────────────────────────────────
-  const emailSels = [
-    '#email',
-    'input[type="email"]',
-    'input[name="email"]',
-    'input[autocomplete="email"]',
-    'input[placeholder*="email" i]',
-  ];
-  let emailSel = null;
-  for (const sel of emailSels) {
-    try { await page.waitForSelector(sel, { timeout: 6000 }); emailSel = sel; break; } catch { }
-  }
-  if (!emailSel) {
-    await page.screenshot({ path: 'debug_no_email.png', fullPage: true }).catch(() => { });
-    const title = await page.title().catch(() => '');
-    throw new Error(`Campo email non trovato - url: ${page.url()} title: ${title}`);
-  }
-  await page.fill(emailSel, email);
-  await delay(400 + Math.random() * 300);
-  await page.click('button:has-text("Continue")');
-  await delay(2500);
+    // ── STEP 2: Dati personali (Username, Age: 18, Identity: Male) ───────────
+    try {
+      await page.waitForSelector('#username', { timeout: 15000 });
+    } catch {
+      await page.screenshot({ path: 'debug_no_username.png', fullPage: true }).catch(() => {});
+      throw new Error(`Campo #username non trovato - url: ${page.url()}`);
+    }
 
-  try { await page.waitForSelector('#password', { timeout: 15000 }); }
-  catch {
-    await page.screenshot({ path: 'debug_no_password.png', fullPage: true }).catch(() => { });
-    throw new Error(`Campo #password non trovato - url: ${page.url()}`);
-  }
-  await page.fill('#password', password);
-  await delay(400 + Math.random() * 200);
-  await page.click('button:has-text("Continue")');
-  await delay(2500);
+    // 1. Username
+    const usernameInput = page.locator('#username');
+    await usernameInput.click();
+    await usernameInput.fill(username);
+    log(`  -> Username impostato: ${username}`);
+    await delay(300);
 
-  try { await page.waitForSelector('#username', { timeout: 15000 }); }
-  catch {
-    await page.screenshot({ path: 'debug_no_username.png', fullPage: true }).catch(() => { });
-    throw new Error(`Campo #username non trovato - url: ${page.url()}`);
-  }
-  await page.fill('#username', username);
-  await delay(300);
+    // 2. Age (Chakra UI NumberInput / role=spinbutton)
+    const ageInput = page.locator('#age');
+    await ageInput.waitFor({ state: 'visible', timeout: 5000 });
+    await ageInput.click();
+    await ageInput.fill('');
+    await ageInput.pressSequentially(age, { delay: 80 });
+    await page.keyboard.press('Tab');
+    await delay(300);
+    const enteredAge = await ageInput.inputValue().catch(() => '');
+    log(`  -> Age inserito: "${enteredAge}"`);
 
-  try { await page.fill('#age', age); await delay(300); } catch { }
-  try { await page.selectOption('#identity', { index: 1 }); await delay(300); } catch { }
+    // 3. Identity (Chakra UI Select: M = Male)
+    const identitySelect = page.locator('#identity');
+    await identitySelect.waitFor({ state: 'visible', timeout: 5000 });
+    try {
+      await identitySelect.selectOption(identity);
+    } catch {
+      try { await identitySelect.selectOption({ label: 'Male' }); }
+      catch { await identitySelect.selectOption({ index: 2 }); }
+    }
+    await identitySelect.dispatchEvent('change').catch(() => {});
+    await delay(300);
+    const enteredIdentity = await identitySelect.inputValue().catch(() => '');
+    log(`  -> Identity selezionata: "${enteredIdentity}"`);
 
-  // Aspetta che il pulsante sia cliccabile prima di premere
-  try { await page.waitForSelector('button:has-text("Sign up for free")', { timeout: 5000 }); } catch { }
-  await page.click('button:has-text("Sign up for free")');
-  log('  -> Submit cliccato, attendo navigazione post-registrazione...');
-  await Promise.race([
-    page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 25000 }),
-    delay(25000),
-  ]).catch(() => { });
-  await delay(3000);
-  log(`  -> URL post-submit: ${page.url()}`);
+    // 4. Verifica stato pulsante Submit
+    const submitBtn = page.locator('button:has-text("Sign up for free"), button[type="submit"]');
+    await submitBtn.first().waitFor({ state: 'visible', timeout: 5000 });
+    const isSubmitDisabled = await submitBtn.first().isDisabled().catch(() => false);
+    log(`  -> Submit button disabilitato: ${isSubmitDisabled}`);
 
-  // Se siamo ancora su account.deezer.com, naviga su www.deezer.com
-  // L'ARL cookie viene impostato dopo il redirect alla home
-  if (page.url().includes('account.deezer.com') || page.url().includes('signup')) {
-    log('  -> Navigo su www.deezer.com per ottenere il cookie ARL...');
-    await page.goto('https://www.deezer.com/us/', { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => { });
+    // Verifica eventuali errori prima del submit
+    const preErrors = await page.$$eval('[class*="error"], [role="alert"], .chakra-form__error-message', els => els.map(e => e.innerText.trim()).filter(Boolean)).catch(() => []);
+    if (preErrors.length) log(`  -> Errori prima di submit: ${preErrors.join(' | ')}`);
+
+    // 5. Invio registrazione
+    await submitBtn.first().click();
+    log('  -> Submit "Sign up for free" cliccato, attendo completamento...');
+
+    // Attendi che l'URL cambi (fuori da signup) o fino a 20s
+    try {
+      await page.waitForURL(url => !url.toString().includes('signup'), { timeout: 20000 });
+      log(`  -> Navigazione post-submit ok: ${page.url()}`);
+    } catch {
+      log(`  -> Timeout attesa URL post-submit. URL attuale: ${page.url()}`);
+      const pageText = await page.evaluate(() => document.body?.innerText?.substring(0, 400) || '').catch(() => '');
+      log(`  -> Contenuto pagina corrente: ${pageText.replace(/\s+/g, ' ')}`);
+      const postErrors = await page.$$eval('[class*="error"], [role="alert"], .chakra-form__error-message', els => els.map(e => e.innerText.trim()).filter(Boolean)).catch(() => []);
+      if (postErrors.length) log(`  -> Errori rilevati post-submit: ${postErrors.join(' | ')}`);
+      await page.screenshot({ path: 'debug_step2_stuck.png', fullPage: true }).catch(() => {});
+    }
+
     await delay(3000);
-    log(`  -> URL dopo redirect: ${page.url()}`);
-  }
 
-  // Leggi TUTTI i cookie del contesto (senza filtro URL — ARL è su .deezer.com root)
-  const allCookies = await page.context().cookies();
-  const deezerCookies = allCookies.filter(c => c.domain.includes('deezer.com'));
-  log(`  -> Cookie deezer.com: ${deezerCookies.map(c => c.name).join(', ') || 'nessuno'}`);
-  const arlCookie = deezerCookies.find(c => c.name === 'arl');
-  if (!arlCookie?.value) {
-    const snippet = await page.evaluate(() => document.body?.innerText?.substring(0, 400) || '').catch(() => '');
-    await page.screenshot({ path: 'debug_no_arl.png', fullPage: true }).catch(() => { });
-    throw new Error(`ARL non trovato. URL: ${page.url()} | Pagina: ${snippet.substring(0, 150)}`);
+    // ── Estrazione Cookie ARL ────────────────────────────────────────────────
+    let allCookies = await page.context().cookies();
+    let arlCookie = allCookies.find(c => c.name === 'arl' && c.value);
+
+    // Se l'ARL non è presente subito (o siamo su offers/account), naviga su www.deezer.com/us/
+    if (!arlCookie) {
+      log('  -> ARL non immediato, navigo su https://www.deezer.com/us/ per aggiornare la sessione...');
+      await page.goto('https://www.deezer.com/us/', { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
+      await delay(3000);
+      allCookies = await page.context().cookies();
+      arlCookie = allCookies.find(c => c.name === 'arl' && c.value);
+    }
+
+    const deezerCookies = allCookies.filter(c => c.domain.includes('deezer.com'));
+    log(`  -> Cookie deezer.com: ${deezerCookies.map(c => c.name).join(', ') || 'nessuno'}`);
+
+    if (!arlCookie?.value) {
+      const snippet = await page.evaluate(() => document.body?.innerText?.substring(0, 300) || '').catch(() => '');
+      await page.screenshot({ path: 'debug_no_arl.png', fullPage: true }).catch(() => {});
+      throw new Error(`ARL non trovato. URL: ${page.url()} | Testo: ${snippet.substring(0, 150)}`);
+    }
+
+    return { arl: arlCookie.value, email, password, username };
+  } finally {
+    page.off('response', onResponse);
   }
-  return { arl: arlCookie.value, email, password, username };
 }
 
 async function main() {
@@ -204,7 +291,13 @@ async function main() {
 
   const launchOpts = {
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-blink-features=AutomationControlled'],
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-blink-features=AutomationControlled',
+      '--disable-infobars',
+      '--window-size=1280,800',
+    ],
   };
 
   log('Getting session...');
