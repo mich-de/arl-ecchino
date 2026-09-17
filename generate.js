@@ -74,148 +74,99 @@ function loadExisting() {
 }
 
 // ---------------------------------------------------------------------------
-// UI-based registration — evita il blocco WAF su gw-light.php?method=user.create
+// UI-based registration — flusso multi-step su account.deezer.com
+// (Chakra UI React SPA: step0=email, step1=password, step2=profilo)
 // ---------------------------------------------------------------------------
 async function createOne(page) {
   const email    = `deezerbot${r(8)}@gmail.com`;
   const password = `Dz${r(10)}!A1`;
   const username = `dzuser${r(6)}`;
+  const age      = '28';
 
   log(`  → registrazione form: ${email}`);
 
-  // Naviga alla pagina di registrazione
-  await page.goto('https://www.deezer.com/us/register', {
+  // Naviga direttamente alla signup page (redirige a ?step=0)
+  await page.goto('https://account.deezer.com/en-us/signup/', {
     waitUntil: 'domcontentloaded',
     timeout: 30000,
   }).catch(() => {});
   await delay(3000);
 
-  // Accetta cookie se compare il banner
-  await acceptCookies(page);
+  // Accetta cookie banner ("Accept")
+  try {
+    await page.click('button:has-text("Accept")', { timeout: 5000 });
+    await delay(800);
+  } catch {}
 
   // Controlla blocco WAF
   const bodyText = await page.evaluate(() => document.body?.innerText || '').catch(() => '');
   if (bodyText.toLowerCase().includes('access denied')) {
-    await page.screenshot({ path: 'debug_register_blocked.png', fullPage: true }).catch(() => {});
+    await page.screenshot({ path: 'debug_signup_blocked.png', fullPage: true }).catch(() => {});
     throw new Error('Pagina di registrazione bloccata (Access Denied)');
   }
 
-  // ── Email ──────────────────────────────────────────────────────────────
-  const emailSels = [
-    'input[name="email"]',
-    'input[type="email"]',
-    'input[placeholder*="email" i]',
-    '#email',
-    '#signup-email',
-  ];
-  let emailFilled = false;
-  for (const sel of emailSels) {
-    try {
-      await page.waitForSelector(sel, { timeout: 4000 });
-      await page.fill(sel, email);
-      emailFilled = true;
-      break;
-    } catch {}
+  // ── STEP 1: Email ──────────────────────────────────────────────────────
+  try {
+    await page.waitForSelector('#email', { timeout: 8000 });
+  } catch {
+    await page.screenshot({ path: 'debug_no_email.png', fullPage: true }).catch(() => {});
+    throw new Error(`Campo #email non trovato — url: ${page.url()}`);
   }
-  if (!emailFilled) {
-    await page.screenshot({ path: 'debug_no_email_field.png', fullPage: true }).catch(() => {});
-    const title = await page.title().catch(() => 'n/a');
-    throw new Error(`Campo email non trovato — title: "${title}" url: ${page.url()}`);
-  }
+  await page.fill('#email', email);
   await delay(400 + Math.random() * 300);
+  await page.click('button:has-text("Continue")');
+  await delay(2000);
 
-  // ── Password ───────────────────────────────────────────────────────────
-  const passSels = [
-    'input[name="password"]',
-    'input[type="password"]',
-    'input[placeholder*="password" i]',
-    '#password',
-    '#signup-password',
-  ];
-  for (const sel of passSels) {
-    try {
-      const el = await page.$(sel);
-      if (el) { await el.fill(password); break; }
-    } catch {}
+  // ── STEP 2: Password ───────────────────────────────────────────────────
+  try {
+    await page.waitForSelector('#password', { timeout: 8000 });
+  } catch {
+    await page.screenshot({ path: 'debug_no_password.png', fullPage: true }).catch(() => {});
+    throw new Error(`Campo #password non trovato — url: ${page.url()}`);
   }
+  await page.fill('#password', password);
   await delay(400 + Math.random() * 200);
+  await page.click('button:has-text("Continue")');
+  await delay(2000);
 
-  // ── Username / blog_name (opzionale) ───────────────────────────────────
-  const nameSels = [
-    'input[name="blog_name"]',
-    'input[name="username"]',
-    'input[name="name"]',
-    'input[placeholder*="username" i]',
-  ];
-  for (const sel of nameSels) {
-    try {
-      const el = await page.$(sel);
-      if (el) { await el.fill(username); break; }
-    } catch {}
+  // ── STEP 3: Profilo (username, age, identity) ──────────────────────────
+  try {
+    await page.waitForSelector('#username', { timeout: 8000 });
+  } catch {
+    await page.screenshot({ path: 'debug_no_username.png', fullPage: true }).catch(() => {});
+    throw new Error(`Campo #username non trovato — url: ${page.url()}`);
   }
+  await page.fill('#username', username);
   await delay(300);
 
-  // ── Data di nascita (dropdown o input date) ────────────────────────────
+  // Age (spinbutton)
   try {
-    const dayEl = await page.$('select[name="day"], select[name="birth_day"], select[name="birthDay"]');
-    if (dayEl) await dayEl.selectOption('15');
-
-    const monthEl = await page.$('select[name="month"], select[name="birth_month"], select[name="birthMonth"]');
-    if (monthEl) await monthEl.selectOption('6');
-
-    const yearEl = await page.$('select[name="year"], select[name="birth_year"], select[name="birthYear"]');
-    if (yearEl) await yearEl.selectOption('1995');
-
-    const dateEl = await page.$('input[type="date"][name*="birth"], input[name="birthday"]');
-    if (dateEl) await dateEl.fill('1995-06-15');
+    await page.fill('#age', age);
+    await delay(300);
   } catch {}
-  await delay(300);
 
-  // ── Genere (opzionale) ────────────────────────────────────────────────
+  // Identity / gender select
   try {
-    const genderSel = await page.$('select[name="sex"], select[name="gender"]');
-    if (genderSel) {
-      await genderSel.selectOption('M');
-    } else {
-      const maleRadio = await page.$('input[name="sex"][value="M"], input[name="gender"][value="M"]');
-      if (maleRadio && !(await maleRadio.isChecked())) await maleRadio.click();
-    }
+    await page.selectOption('#identity', { index: 1 }); // prima opzione non-placeholder
+    await delay(300);
   } catch {}
-  await delay(300);
 
-  // ── Checkbox termini (opzionale) ──────────────────────────────────────
-  try {
-    const chk = await page.$('input[type="checkbox"][name*="cgu"], input[type="checkbox"][name*="terms"]');
-    if (chk && !(await chk.isChecked())) await chk.click();
-  } catch {}
-  await delay(400);
-
-  // ── Submit ─────────────────────────────────────────────────────────────
-  const submitSels = [
-    'button[type="submit"]',
-    'input[type="submit"]',
-    'button:has-text("Create")',
-    'button:has-text("Register")',
-    'button:has-text("Sign up")',
-    'button:has-text("Get started")',
-  ];
-  for (const sel of submitSels) {
-    try {
-      const btn = await page.$(sel);
-      if (btn) { await btn.click(); break; }
-    } catch {}
-  }
+  // Submit finale
+  await page.click('button:has-text("Sign up for free")');
 
   // Attendi navigazione post-registrazione
   await Promise.race([
-    page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 15000 }),
-    delay(15000),
+    page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 20000 }),
+    delay(20000),
   ]).catch(() => {});
-  await delay(2500);
+  await delay(3000);
 
-  // ── Estrai ARL dai cookie ─────────────────────────────────────────────
-  const cookies   = await page.context().cookies(['https://www.deezer.com']);
-  const arlCookie = cookies.find(c => c.name === 'arl');
+  // ── Estrai ARL dai cookie (dominio .deezer.com) ────────────────────────
+  const allCookies = await page.context().cookies([
+    'https://www.deezer.com',
+    'https://account.deezer.com',
+  ]);
+  const arlCookie = allCookies.find(c => c.name === 'arl');
   if (!arlCookie?.value) {
     const currentUrl  = page.url();
     const pageSnippet = await page.evaluate(
