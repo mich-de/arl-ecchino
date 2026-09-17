@@ -42,8 +42,8 @@ async function trySession(launchOpts) {
   const browser = await chromium.launch(launchOpts);
   const context = await browser.newContext({
     userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-    locale: 'fr-FR',
-    timezoneId: 'Europe/Paris',
+    locale: 'en-US',
+    timezoneId: 'America/New_York',
     ignoreHTTPSErrors: true,
   });
   await context.addInitScript(() => {
@@ -52,7 +52,7 @@ async function trySession(launchOpts) {
   const page = await context.newPage();
 
   for (let attempt = 0; attempt < 3; attempt++) {
-    await page.goto('https://www.deezer.com/fr/', { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
+    await page.goto('https://www.deezer.com/us/', { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
     await delay(3000);
     const title = await page.title().catch(() => '');
     const blocked = await page.evaluate(() => document.documentElement.outerHTML.substring(0, 2000).toLowerCase()).catch(() => '');
@@ -182,14 +182,11 @@ async function createOne(page) {
     log(`  -> URL dopo redirect: ${page.url()}`);
   }
 
-  // Leggi cookie da tutti i domini Deezer
-  const allCookies = await page.context().cookies([
-    'https://www.deezer.com',
-    'https://account.deezer.com',
-    'https://deezer.com',
-  ]);
-  log(`  -> Cookie trovati: ${allCookies.map(c => c.name).join(', ') || 'nessuno'}`);
-  const arlCookie = allCookies.find(c => c.name === 'arl');
+  // Leggi TUTTI i cookie del contesto (senza filtro URL — ARL è su .deezer.com root)
+  const allCookies = await page.context().cookies();
+  const deezerCookies = allCookies.filter(c => c.domain.includes('deezer.com'));
+  log(`  -> Cookie deezer.com: ${deezerCookies.map(c => c.name).join(', ') || 'nessuno'}`);
+  const arlCookie = deezerCookies.find(c => c.name === 'arl');
   if (!arlCookie?.value) {
     const snippet = await page.evaluate(() => document.body?.innerText?.substring(0, 400) || '').catch(() => '');
     await page.screenshot({ path: 'debug_no_arl.png', fullPage: true }).catch(() => { });
