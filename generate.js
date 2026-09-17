@@ -85,16 +85,22 @@ async function createOne(page) {
 
   log(`  → registrazione form: ${email}`);
 
-  // Naviga direttamente alla signup page (redirige a ?step=0)
-  await page.goto('https://account.deezer.com/en-us/signup/', {
+  // Naviga via www.deezer.com (proxy-safe) che redirige a account.deezer.com
+  // NON navigare direttamente a account.deezer.com: il proxy lo blocca
+  await page.goto('https://www.deezer.com/us/register', {
     waitUntil: 'domcontentloaded',
     timeout: 30000,
   }).catch(() => {});
-  await delay(3000);
 
-  // Accetta cookie banner ("Accept")
+  // Aspetta che il redirect a account.deezer.com si completi
   try {
-    await page.click('button:has-text("Accept")', { timeout: 5000 });
+    await page.waitForURL('**/signup/**', { timeout: 15000 });
+  } catch {}
+  await delay(4000); // SPA React: aspetta mount completo
+
+  // Accetta cookie banner se presente
+  try {
+    await page.click('button:has-text("Accept")', { timeout: 3000 });
     await delay(800);
   } catch {}
 
@@ -106,8 +112,9 @@ async function createOne(page) {
   }
 
   // ── STEP 1: Email ──────────────────────────────────────────────────────
+  // La SPA può impiegare fino a 12s per montare il form
   try {
-    await page.waitForSelector('#email', { timeout: 8000 });
+    await page.waitForSelector('#email', { timeout: 15000 });
   } catch {
     await page.screenshot({ path: 'debug_no_email.png', fullPage: true }).catch(() => {});
     throw new Error(`Campo #email non trovato — url: ${page.url()}`);
@@ -115,7 +122,7 @@ async function createOne(page) {
   await page.fill('#email', email);
   await delay(400 + Math.random() * 300);
   await page.click('button:has-text("Continue")');
-  await delay(2000);
+  await delay(2500);
 
   // ── STEP 2: Password ───────────────────────────────────────────────────
   try {
