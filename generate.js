@@ -26,6 +26,23 @@ function generateRealisticEmail() {
 function log(msg) { console.log(`[${new Date().toISOString()}] ${msg}`); }
 function delay(ms) { return new Promise(res => setTimeout(res, ms)); }
 
+async function humanMoveAndClick(page, locator) {
+  const el = typeof locator === 'string' ? page.locator(locator).first() : locator.first();
+  await el.waitFor({ state: 'visible', timeout: 10000 });
+  const box = await el.boundingBox();
+  if (box) {
+    const targetX = box.x + box.width / 2 + (Math.random() * 10 - 5);
+    const targetY = box.y + box.height / 2 + (Math.random() * 6 - 3);
+    await page.mouse.move(targetX - 40, targetY - 20, { steps: 5 });
+    await delay(60);
+    await page.mouse.move(targetX, targetY, { steps: 5 });
+    await delay(120);
+    await page.mouse.click(targetX, targetY);
+  } else {
+    await el.click();
+  }
+}
+
 async function sendTelegram(text) {
   const token = process.env.TG_BOT_TOKEN;
   const chatId = process.env.TG_CHAT_ID;
@@ -51,20 +68,17 @@ function loadExisting() {
 async function trySession(launchOpts) {
   const browser = await chromium.launch(launchOpts);
   const context = await browser.newContext({
-    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+    userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
     locale: 'en-US',
     timezoneId: 'America/New_York',
     viewport: { width: 1280, height: 800 },
+    deviceScaleFactor: 1,
     ignoreHTTPSErrors: true,
   });
 
   await context.addInitScript(() => {
-    // Evasione Akamai & Webdriver
     Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
     delete Object.getPrototypeOf(navigator).webdriver;
-    Object.defineProperty(navigator, 'platform', { get: () => 'Win32' });
-    Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
-    Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
     window.chrome = { runtime: {} };
   });
 
@@ -101,7 +115,6 @@ async function createOne(page) {
 
   log(`  -> registrazione form: ${email} (user: ${username})`);
 
-  // Listener diagnostico per console ed errori JS nella pagina
   const onConsole = (msg) => {
     if (msg.type() === 'error') log(`  [BROWSER CONSOLE] ${msg.text()}`);
   };
@@ -111,7 +124,6 @@ async function createOne(page) {
   page.on('console', onConsole);
   page.on('pageerror', onPageError);
 
-  // Monitora TUTTE le risposte POST e risposte di errore o connesse a registrazione
   const onResponse = async (resp) => {
     try {
       const status = resp.status();
@@ -124,6 +136,7 @@ async function createOne(page) {
         || url.includes('checkform')
         || url.includes('register')
         || url.includes('user')
+        || url.includes('verify')
         || url.includes('auth');
 
       if (isRelevant) {
@@ -138,7 +151,6 @@ async function createOne(page) {
   page.on('response', onResponse);
 
   try {
-    // Navigazione iniziale al form di registrazione Deezer
     await page.goto('https://account.deezer.com/en-us/signup/', {
       waitUntil: 'networkidle',
       timeout: 45000,
@@ -146,7 +158,7 @@ async function createOne(page) {
     await delay(2000);
     log(`  -> URL dopo goto: ${page.url()}`);
 
-    // Gestione popup Cookie ("A note about our cookies")
+    // Cookie popup
     const cookieBtns = [
       '#gdpr-btn-refuse',
       '#gdpr-btn-accept',
@@ -187,10 +199,10 @@ async function createOne(page) {
       throw new Error(`Campo email non trovato - url: ${page.url()}`);
     }
 
-    await page.locator(emailSel).click();
-    await page.locator(emailSel).pressSequentially(email, { delay: 30 });
+    await humanMoveAndClick(page, emailSel);
+    await page.locator(emailSel).pressSequentially(email, { delay: 40 });
     await delay(600);
-    await page.click('button:has-text("Continue")');
+    await humanMoveAndClick(page, 'button:has-text("Continue")');
     log('  -> Step 0 (Email) inviato');
     await delay(2000);
 
@@ -202,14 +214,14 @@ async function createOne(page) {
       throw new Error(`Campo #password non trovato - url: ${page.url()}`);
     }
 
-    await page.locator('#password').click();
-    await page.locator('#password').pressSequentially(password, { delay: 30 });
+    await humanMoveAndClick(page, '#password');
+    await page.locator('#password').pressSequentially(password, { delay: 40 });
     await delay(600);
-    await page.click('button:has-text("Continue")');
+    await humanMoveAndClick(page, 'button:has-text("Continue")');
     log('  -> Step 1 (Password) inviato');
     await delay(2000);
 
-    // ── STEP 2: Personal Information (Username, Age: 18, Identity: Male) ───
+    // ── STEP 2: Personal Information ────────────────────────────────────────
     try {
       await page.waitForSelector('#username', { timeout: 15000 });
     } catch {
@@ -219,18 +231,18 @@ async function createOne(page) {
 
     // 1. Username
     const usernameInput = page.locator('#username');
-    await usernameInput.click();
+    await humanMoveAndClick(page, usernameInput);
     await usernameInput.fill('');
-    await usernameInput.pressSequentially(username, { delay: 30 });
+    await usernameInput.pressSequentially(username, { delay: 40 });
     await delay(400);
     log(`  -> Username impostato: ${username}`);
 
     // 2. Age (Chakra UI NumberInput / role=spinbutton)
     const ageInput = page.locator('#age');
     await ageInput.waitFor({ state: 'visible', timeout: 5000 });
-    await ageInput.click();
+    await humanMoveAndClick(page, ageInput);
     await ageInput.fill('');
-    await ageInput.pressSequentially(age, { delay: 80 });
+    await ageInput.pressSequentially(age, { delay: 90 });
     await page.keyboard.press('Tab');
     await delay(400);
     const enteredAge = await ageInput.inputValue().catch(() => '');
@@ -250,20 +262,24 @@ async function createOne(page) {
     const enteredIdentity = await identitySelect.inputValue().catch(() => '');
     log(`  -> Identity selezionata: "${enteredIdentity}"`);
 
-    // 4. Verifica stato pulsante Submit e attendi debounce
-    await delay(1500);
+    // Movimento naturale del mouse sullo schermo prima del submit
+    await page.mouse.move(400, 300, { steps: 5 });
+    await delay(500);
+    await page.mouse.move(500, 450, { steps: 5 });
+    await delay(800);
+
+    // 4. Pulsante Submit
     const submitBtn = page.locator('button:has-text("Sign up for free"), button[type="submit"]');
     await submitBtn.first().waitFor({ state: 'visible', timeout: 5000 });
     const isSubmitDisabled = await submitBtn.first().isDisabled().catch(() => false);
     log(`  -> Submit button disabilitato: ${isSubmitDisabled}`);
 
-    // 5. Invio registrazione
-    await submitBtn.first().click();
+    // 5. Invio registrazione con click umano
+    await humanMoveAndClick(page, submitBtn.first());
     log('  -> Submit "Sign up for free" cliccato, attendo completamento...');
 
-    // Attendi che l'URL cambi (fuori da signup) o fino a 20s
     try {
-      await page.waitForURL(url => !url.toString().includes('signup'), { timeout: 20000 });
+      await page.waitForURL(url => !url.toString().includes('signup'), { timeout: 25000 });
       log(`  -> Navigazione post-submit ok: ${page.url()}`);
     } catch {
       log(`  -> Timeout attesa URL post-submit. URL attuale: ${page.url()}`);
@@ -280,7 +296,6 @@ async function createOne(page) {
     let allCookies = await page.context().cookies();
     let arlCookie = allCookies.find(c => c.name === 'arl' && c.value);
 
-    // Se l'ARL non è presente subito, naviga su https://www.deezer.com/us/
     if (!arlCookie) {
       log('  -> ARL non immediato, navigo su https://www.deezer.com/us/ per aggiornare la sessione...');
       await page.goto('https://www.deezer.com/us/', { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
@@ -313,8 +328,12 @@ async function main() {
   const valid = existing.filter(e => { const t = Date.parse(e.created || 0); return !isNaN(t) && t >= cutoff; });
   log(`ARL esistenti: ${existing.length}, validi dopo prune (<${KEEP_DAYS}g): ${valid.length}`);
 
+  // Se DISPLAY è impostato (es. via xvfb-run), usa browser headful reale!
+  const useHeadful = Boolean(process.env.DISPLAY);
+  log(`Modalità browser: ${useHeadful ? 'HEADFUL (via Xvfb virtual display)' : 'HEADLESS'}`);
+
   const launchOpts = {
-    headless: true,
+    headless: !useHeadful,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',

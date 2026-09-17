@@ -35,7 +35,7 @@ jobs:
           ARL_KEEP_DAYS: '30'
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
-        run: node generate.js
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x800x24" node generate.js
 
       - name: Upload debug screenshots
         if: always()
