@@ -224,19 +224,25 @@ async function main() {
     for (let attempt = 0; attempt < 5; attempt++) {
       await page.goto('https://www.deezer.com/us/', { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
       await delay(3000);
-      const title = await page.title().catch(() => '');
+      const title   = await page.title().catch(() => '');
       const blocked = await page.evaluate(() => document.documentElement.outerHTML.substring(0, 2000).toLowerCase()).catch(() => '');
       const hasChallenge = title.toLowerCase().includes('just a moment')
         || title.toLowerCase().includes('captcha')
         || blocked.includes('cf-challenge')
         || blocked.includes('challenge-platform')
         || blocked.includes('cloudflare');
-      if (!hasChallenge) {
+      // Titolo vuoto = pagina non caricata (proxy/rete KO) → riprova
+      const pageEmpty = title.trim() === '' || page.url().startsWith('chrome-error://');
+      if (!hasChallenge && !pageEmpty) {
         log(`Sessione ok (title: "${title}")`);
         break;
       }
-      log(`Challenge Cloudflare rilevata (tentativo ${attempt + 1}/5), riprovo...`);
-      await delay(4000 * (attempt + 1));
+      if (pageEmpty) {
+        log(`Sessione vuota/errore (tentativo ${attempt + 1}/5) — url: ${page.url()} — riprovo...`);
+      } else {
+        log(`Challenge Cloudflare rilevata (tentativo ${attempt + 1}/5), riprovo...`);
+      }
+      await delay(5000 * (attempt + 1));
     }
 
     let created = 0;
