@@ -89,11 +89,19 @@ async function createOne(page) {
       }),
       credentials: 'include',
     });
-    return await resp.json();
+    const text = await resp.text();
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      return { __html: text.substring(0, 300), __status: resp.status };
+    }
   }, { token: apiToken, email, password, username });
 
   if (createResult.results?.arl) {
     return { arl: createResult.results.arl, email, password, username };
+  }
+  if (createResult.__html) {
+    throw new Error('user.create bloccato (status ' + createResult.__status + '): ' + createResult.__html);
   }
   if (createResult.error?.REQUEST_ERROR === 'email_already_used') {
     // email collision: retry once with a new email
@@ -114,7 +122,12 @@ async function createOne(page) {
         }),
         credentials: 'include',
       });
-      return await resp.json();
+      const text = await resp.text();
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        return { __html: text.substring(0, 300), __status: resp.status };
+      }
     }, { token: apiToken, email: email2, password, username });
     if (createResult2.results?.arl) {
       return { arl: createResult2.results.arl, email: email2, password, username };
