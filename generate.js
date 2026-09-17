@@ -89,7 +89,29 @@ async function createOne(page) {
   await delay(2000);
   log(`  -> URL dopo goto: ${page.url()}`);
 
-  try { await page.click('button:has-text("Accept")', { timeout: 3000 }); await delay(800); } catch {}
+  // Chiudi il popup cookie ("A note about our cookies") — blocca il form se non chiuso
+  // Selettori esatti da ispezione DOM account.deezer.com
+  const cookieBtns = [
+    '#gdpr-btn-refuse',              // esatto — da ispezione
+    '#gdpr-btn-accept',              // fallback
+    'button:has-text("Refuse")',
+    'button:has-text("Reject")',
+    'button:has-text("Reject all")',
+    'button:has-text("Accept")',
+    'button:has-text("Accept all")',
+    '[data-testid="gdpr-refuse"]',
+    '[data-testid="gdpr-accept"]',
+    '#didomi-notice-disagree-button',
+    '#didomi-notice-agree-button',
+  ];
+  for (const sel of cookieBtns) {
+    try {
+      await page.click(sel, { timeout: 2000 });
+      log(`  -> Cookie popup chiuso (${sel})`);
+      await delay(800);
+      break;
+    } catch {}
+  }
 
   const bodyText = await page.evaluate(() => document.body?.innerText || '').catch(() => '');
   if (bodyText.toLowerCase().includes('access denied')) {
