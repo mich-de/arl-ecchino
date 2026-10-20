@@ -1,0 +1,13 @@
+{
+  "name": "arl-ecchino",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Generatore automatico ARL Deezer (GitHub Actions + Telegram)",
+  "main": "generate.js",
+  "scripts": {
+    "generate": "node generate.js"
+  },
+  "dependencies": {
+    "playwright": "^1.47.0"
+  }
+}
