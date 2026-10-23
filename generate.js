@@ -71,7 +71,9 @@ async function createOne() {
   try {
     // 1. Ottieni USER_TOKEN da deezer.getUserData (API anonima)
     log(`  -> step 1 (getUserData)...`);
-    const r1 = await fetch(`${gwUrl}?method=deezer.getUserData&input=3&api_version=1.0&api_token=&cid=${cid}`, {
+    const url1 = `${gwUrl}?method=deezer.getUserData&input=3&api_version=1.0&api_token=&cid=${cid}`;
+    log(`  -> POST: ${url1.substring(0, 80)}...`);
+    const r1 = await fetch(url1, {
       method: 'POST',
       headers,
       body: JSON.stringify({ APP_NAME: 'Deezer' }),
@@ -139,6 +141,7 @@ async function createOne() {
 
   } catch (err) {
     log(`  -> fallito: ${err.message}`);
+    log(`  -> stack: ${err.stack}`);
     throw err;
   }
 }
