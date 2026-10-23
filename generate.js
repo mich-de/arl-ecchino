@@ -28,17 +28,21 @@ function delay(ms) { return new Promise(res => setTimeout(res, ms)); }
 async function sendTelegram(text) {
   const token = process.env.TG_BOT_TOKEN;
   const chatId = process.env.TG_CHAT_ID;
+  log(`Telegram config: token=${token ? token.substring(0, 10) + '...' : 'MISSING'}, chatId=${chatId || 'MISSING'}`);
   if (!token || !chatId) { log('Telegram non configurato - salto invio'); return; }
   try {
-    const resp = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    const url = `https://api.telegram.org/bot${token}/sendMessage`;
+    log(`Telegram POST: ${url.substring(0, 50)}...`);
+    const resp = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'Markdown' }),
     });
     const data = await resp.json();
+    log(`Telegram response: ${JSON.stringify(data).substring(0, 500)}`);
     if (!data.ok) log(`Telegram errore: ${JSON.stringify(data)}`);
-    else log(`Telegram inviato (${text.length} caratteri)`);
-  } catch (e) { log(`Telegram fallito: ${e.message}`); }
+    else log(`Telegram inviato OK (${text.length} caratteri)`);
+  } catch (e) { log(`Telegram fallito: ${e.message}\n${e.stack}`); }
 }
 
 function loadExisting() {
@@ -147,6 +151,11 @@ async function createOne() {
 }
 
 async function main() {
+  // Test Telegram subito all'avvio
+  log('=== Test invio Telegram ===');
+  await sendTelegram('🔧 arl-ecchino test: workflow avviato');
+  log('=== Fine test Telegram ===');
+
   const existing = loadExisting();
   const now = new Date();
   const cutoff = now.getTime() - KEEP_DAYS * 86400 * 1000;
