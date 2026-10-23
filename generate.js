@@ -216,17 +216,18 @@ async function main() {
     }
 
     if (fresh.length > 0) {
-      // Messaggio HTML: ogni campo su riga separata, copiabile con tap
-      const lines = fresh.map((e, i) =>
-        `<b>— ${i + 1} —</b>\n\n📧 Email:\n<code>${esc(e.email)}</code>\n\n🔑 Password:\n<code>${esc(e.password)}</code>\n\n🎫 ARL:\n<code>${esc(e.arl)}</code>`
-      ).join('\n\n━━━━━━━━━━━━━━━\n\n');
-      const html = `🎉 <b>D33Z3R — ${fresh.length} nuovi ARL</b>\n📅 ${new Date().toISOString().substring(0, 10)}\n\n${lines}`;
+      // Messaggio riepilogo
+      await sendTelegram(`🎉 <b>D33Z3R — ${fresh.length} nuovi ARL</b>\n📅 ${new Date().toISOString().substring(0, 10)}`);
 
-      // Fallback plain
-      const plainLines = fresh.map((e, i) => `${i + 1}.\n${e.email}\n${e.password}\n${e.arl}`).join('\n\n');
-      const plain = `D33Z3R — ${fresh.length} nuovi ARL\n${new Date().toISOString().substring(0, 10)}\n\n${plainLines}`;
-
-      await sendTelegram(html, plain);
+      // Ogni ARL: 3 messaggi separati (email, password, arl) per copia facile
+      for (let i = 0; i < fresh.length; i++) {
+        const e = fresh[i];
+        await sendTelegram(`<b>— ${i + 1}/${fresh.length} —</b>`);
+        await sendTelegram(`📧 <code>${esc(e.email)}</code>`);
+        await sendTelegram(`🔑 <code>${esc(e.password)}</code>`);
+        await sendTelegram(`🎫 <code>${esc(e.arl)}</code>`);
+        await delay(500);
+      }
     } else {
       await sendTelegram('⚠️ <b>arl-ecchino</b>: nessun ARL generato oggi. Controlla i log su GitHub Actions.');
     }
