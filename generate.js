@@ -216,10 +216,10 @@ async function main() {
     }
 
     if (fresh.length > 0) {
-      // Messaggio HTML: email, password, arl — ognuno copiabile
+      // Messaggio HTML: ogni campo su riga separata, copiabile con tap
       const lines = fresh.map((e, i) =>
-        `<b>${i + 1}.</b>\n📧 <code>${esc(e.email)}</code>\n🔑 <code>${esc(e.password)}</code>\n🎫 <code>${esc(e.arl)}</code>`
-      ).join('\n\n');
+        `<b>— ${i + 1} —</b>\n\n📧 Email:\n<code>${esc(e.email)}</code>\n\n🔑 Password:\n<code>${esc(e.password)}</code>\n\n🎫 ARL:\n<code>${esc(e.arl)}</code>`
+      ).join('\n\n━━━━━━━━━━━━━━━\n\n');
       const html = `🎉 <b>D33Z3R — ${fresh.length} nuovi ARL</b>\n📅 ${new Date().toISOString().substring(0, 10)}\n\n${lines}`;
 
       // Fallback plain
