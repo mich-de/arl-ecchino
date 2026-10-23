@@ -111,58 +111,136 @@ async function createOne(page, context) {
   const password = `Dz${r(10)}!A1`;
   const username = email.split('@')[0].replace('.', '') + r(2);
 
-  log(`  -> registrazione API (native OkHttp-style): ${email} (user: ${username})`);
+  log(`  -> registrazione form: ${email} (user: ${username})`);
 
-  // Sessione Akamai già stabilita da trySession; refresh rapido per cookie aggiornati
-  await page.goto('https://www.deezer.com/us/', { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
+  // Navigare alla pagina di registrazione US
+  await page.goto('https://www.deezer.com/us/register', { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
   await delay(2500);
 
-  const cid = Math.floor(Math.random() * 999999);
-  const gw = 'https://www.deezer.com/ajax/gw-light.php';
-  const appHeaders = {
-    'User-Agent': 'Mozilla/5.0 DeezerKotlin/1.0',
-    'Content-Type': 'application/json',
-  };
+  try {
+    // Step 1: Email
+    log(`  -> step 1 (email)...`);
+    const emailInput = page.locator('input[type="email"]').first();
+    await emailInput.waitFor({ state: 'visible', timeout: 10000 });
+    await emailInput.click();
+    await emailInput.fill(email);
+    await delay(500);
 
-  // 1. Native HTTP (context.request): token API anonimo
-  const r1 = await context.request.post(`${gw}?method=deezer.getUserData&input=3&api_version=1.0&api_token=&cid=${cid}`, {
-    headers: appHeaders,
-    data: JSON.stringify({ APP_NAME: 'Deezer' }),
-  });
-  const t1 = await r1.text();
-  let j1;
-  try { j1 = JSON.parse(t1); } catch (e) { throw new Error(`API Fallita: Token parse fail | Data: ${t1.substring(0, 200)}`); }
+    // Cerca il pulsante "Continue" o simile
+    let continueBtn = page.locator('button:has-text("Continue")').first();
+    let found = await continueBtn.isVisible().catch(() => false);
+    if (!found) {
+      continueBtn = page.locator('button:has-text("continue")').first();
+      found = await continueBtn.isVisible().catch(() => false);
+    }
+    if (!found) {
+      continueBtn = page.locator('button[type="submit"]').first();
+    }
 
-  const apiToken = j1.results?.USER_TOKEN;
-  if (!apiToken) throw new Error(`API Fallita: No USER_TOKEN | Data: ${JSON.stringify(j1).substring(0, 300)}`);
+    await continueBtn.click();
+    await delay(2000);
 
-  // 2. Native HTTP (context.request): user.create -> ARL immediato
-  const r2 = await context.request.post(`${gw}?method=user.create&input=3&api_version=1.0&api_token=${apiToken}&cid=${cid}`, {
-    headers: appHeaders,
-    data: JSON.stringify({
-      APP_NAME: 'Deezer',
-      EMAIL: email,
-      PASSWORD: password,
-      BLOG_NAME: username,
-      SEX: 'M',
-      BIRTHDAY: '1995-06-15',
-      JOURNEY_VERSION: 'unlogged_smart_and_login_web_v1',
-    }),
-  });
-  const t2 = await r2.text();
-  let j2;
-  try { j2 = JSON.parse(t2); } catch (e) { throw new Error(`API Fallita: Create parse fail | Data: ${t2.substring(0, 200)}`); }
+    // Step 2: Password
+    log(`  -> step 2 (password)...`);
+    const passInput = page.locator('input[type="password"]').first();
+    await passInput.waitFor({ state: 'visible', timeout: 10000 });
+    await passInput.click();
+    await passInput.fill(password);
+    await delay(500);
 
-  if (j2?.error && Object.keys(j2.error).length > 0) {
-    throw new Error(`Errore API Deezer: ${JSON.stringify(j2.error)}`);
+    continueBtn = page.locator('button:has-text("Continue")').first();
+    found = await continueBtn.isVisible().catch(() => false);
+    if (!found) {
+      continueBtn = page.locator('button:has-text("continue")').first();
+      found = await continueBtn.isVisible().catch(() => false);
+    }
+    if (!found) {
+      continueBtn = page.locator('button[type="submit"]').first();
+    }
+
+    await continueBtn.click();
+    await delay(2000);
+
+    // Step 3: Username + Age + Gender
+    log(`  -> step 3 (username, age, gender)...`);
+    const userInput = page.locator('input').filter({ hasText: /username|user|name/i }).first();
+    if (await userInput.isVisible().catch(() => false)) {
+      await userInput.click();
+      await userInput.fill(username);
+      await delay(500);
+    }
+
+    // Age field (Chakra NumberInput): click, clear, type 18
+    const ageInput = page.locator('input[type="number"]').first();
+    if (await ageInput.isVisible().catch(() => false)) {
+      await ageInput.click();
+      await ageInput.selectText();
+      await ageInput.type('18');
+      await delay(300);
+    }
+
+    // Gender/Identity: look for select or radio buttons
+    const maleOption = page.locator('input[value="M"]').first();
+    if (await maleOption.isVisible().catch(() => false)) {
+      await maleOption.click();
+      await delay(300);
+    }
+
+    // Submit form
+    continueBtn = page.locator('button:has-text("Continue")').first();
+    found = await continueBtn.isVisible().catch(() => false);
+    if (!found) {
+      continueBtn = page.locator('button:has-text("continue")').first();
+      found = await continueBtn.isVisible().catch(() => false);
+    }
+    if (!found) {
+      continueBtn = page.locator('button:has-text("Create account")').first();
+      found = await continueBtn.isVisible().catch(() => false);
+    }
+    if (!found) {
+      continueBtn = page.locator('button[type="submit"]').first();
+    }
+
+    await continueBtn.click();
+    await delay(3000);
+
+  } catch (err) {
+    log(`Errore durante compilazione form: ${err.message}`);
+    throw err;
   }
 
-  const arl = j2?.results?.arl;
-  if (!arl) {
-    throw new Error(`ARL non restituito dall'API: ${JSON.stringify(j2).substring(0, 300)}`);
+  // Estrai ARL dai cookie della sessione
+  log(`  -> estrazione ARL dai cookie...`);
+  const cookies = await context.cookies();
+  const arlCookie = cookies.find(c => c.name === 'arl');
+  const sidCookie = cookies.find(c => c.name === 'sid');
+
+  if (!arlCookie) {
+    throw new Error(`ARL non trovato nei cookie di risposta`);
   }
 
-  log(`  -> API call success: ARL ottenuto!`);
+  const arl = arlCookie.value;
+  log(`  -> ARL ottenuto: ${arl.substring(0, 20)}...`);
+
+  // Validazione: verificare ARL con deezer.getUserData
+  log(`  -> validazione ARL...`);
+  try {
+    const cid = Math.floor(Math.random() * 999999);
+    const gw = 'https://www.deezer.com/us/ajax/gw-light.php';  // ✅ MIRROR /us CORRETTO
+    const r = await context.request.get(`${gw}?method=deezer.getUserData&input=3&api_version=1.0&api_token=&cid=${cid}`, {
+      headers: { 'User-Agent': 'Mozilla/5.0 DeezerKotlin/1.0' },
+    });
+    const data = await r.json().catch(() => null);
+    if (!data || data?.error && Object.keys(data.error).length > 0) {
+      log(`  -> Validazione fallita: ${JSON.stringify(data?.error)}`);
+      throw new Error('ARL validation failed');
+    }
+    log(`  -> ARL validato!`);
+  } catch (e) {
+    log(`  -> Validazione fallita: ${e.message}`);
+    throw e;
+  }
+
   return { arl, email, password, username };
 }
 
@@ -173,7 +251,6 @@ async function main() {
   const valid = existing.filter(e => { const t = Date.parse(e.created || 0); return !isNaN(t) && t >= cutoff; });
   log(`ARL esistenti: ${existing.length}, validi dopo prune (<${KEEP_DAYS}g): ${valid.length}`);
 
-  // Se DISPLAY è impostato (es. via xvfb-run), usa browser headful reale!
   const useHeadful = Boolean(process.env.DISPLAY);
   log(`Modalità browser: ${useHeadful ? 'HEADFUL (via Xvfb virtual display)' : 'HEADLESS'}`);
 
