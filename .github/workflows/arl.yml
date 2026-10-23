@@ -27,31 +27,31 @@ jobs:
       - name: Install deps
         run: npm install
 
+      - name: Debug secrets
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+        run: |
+          echo "TG_BOT_TOKEN set: $([ -n "$TG_BOT_TOKEN" ] && echo YES_${#TG_BOT_TOKEN}_chars || echo NO)"
+          echo "TG_CHAT_ID set: $([ -n "$TG_CHAT_ID" ] && echo YES_${#TG_CHAT_ID}_chars || echo NO)"
+
       - name: Genera ARL
         env:
           ARL_DAILY_COUNT: '3'
           ARL_KEEP_DAYS: '30'
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
-        run: node generate.js
+        run: node generate.js 2>&1 | tee run.log
 
-      - name: Upload debug screenshots
+      - name: Commit log + arls
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: debug-screenshots
-          path: debug_*.png
-          if-no-files-found: ignore
-
-      - name: Commit arls.json
-        if: success()
         run: |
           git config user.name "arl-ecchino bot"
           git config user.email "actions@users.noreply.github.com"
-          git add arls.json arl.txt 2>/dev/null || true
+          git add -f run.log arls.json arl.txt 2>/dev/null || true
           if git diff --cached --quiet; then
-            echo "Nessuna modifica da committare"
+            echo "Nessuna modifica"
           else
-            git commit -m "ARL: $(date -u +%F) — aggiornamento automatico"
+            git commit -m "run: $(date -u +%F_%H%M) log + arls"
             git push
           fi
