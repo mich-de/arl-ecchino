@@ -1,5 +1,6 @@
 node_modules/
 *.log
-.DS_Storearls.json
+.DS_Store
+arls.json
 arl.txt
 debug_*.png
