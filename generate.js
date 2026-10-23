@@ -25,24 +25,62 @@ function generateRealisticEmail() {
 function log(msg) { console.log(`[${new Date().toISOString()}] ${msg}`); }
 function delay(ms) { return new Promise(res => setTimeout(res, ms)); }
 
-async function sendTelegram(text) {
+/** Escape HTML per Telegram parse_mode HTML */
+function esc(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+/**
+ * Invia messaggio Telegram. Prova HTML, se fallisce riprova plain text.
+ */
+async function sendTelegram(html, plainFallback) {
   const token = process.env.TG_BOT_TOKEN;
   const chatId = process.env.TG_CHAT_ID;
   log(`Telegram config: token=${token ? token.substring(0, 10) + '...' : 'MISSING'}, chatId=${chatId || 'MISSING'}`);
   if (!token || !chatId) { log('Telegram non configurato - salto invio'); return; }
+
+  const base = `https://api.telegram.org/bot${token}`;
+
+  // Verifica bot attivo
   try {
-    const url = `https://api.telegram.org/bot${token}/sendMessage`;
-    log(`Telegram POST: ${url.substring(0, 50)}...`);
-    const resp = await fetch(url, {
+    const me = await fetch(`${base}/getMe`);
+    const meData = await me.json();
+    log(`Bot info: ${JSON.stringify(meData)}`);
+    if (!meData.ok) { log('ERRORE: bot token invalido!'); return; }
+  } catch (e) { log(`getMe fallito: ${e.message}`); return; }
+
+  // Tentativo 1: HTML
+  try {
+    log(`Telegram invio HTML (${html.length} char)...`);
+    const resp = await fetch(`${base}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'Markdown' }),
+      body: JSON.stringify({ chat_id: chatId, text: html, parse_mode: 'HTML' }),
     });
     const data = await resp.json();
     log(`Telegram response: ${JSON.stringify(data).substring(0, 500)}`);
-    if (!data.ok) log(`Telegram errore: ${JSON.stringify(data)}`);
-    else log(`Telegram inviato OK (${text.length} caratteri)`);
-  } catch (e) { log(`Telegram fallito: ${e.message}\n${e.stack}`); }
+    if (data.ok) { log('Telegram inviato OK (HTML)'); return; }
+
+    // Se errore "chat not found" o "bot was blocked"
+    if (data.description?.includes('chat not found')) {
+      log('ERRORE: chat_id non trovato! L\'utente deve premere /start sul bot.');
+    } else if (data.description?.includes('bot was blocked')) {
+      log('ERRORE: il bot è stato bloccato dall\'utente.');
+    }
+
+    // Fallback: plain text senza formattazione
+    log('Riprovo senza parse_mode...');
+    const plain = plainFallback || html.replace(/<[^>]+>/g, '');
+    const resp2 = await fetch(`${base}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text: plain }),
+    });
+    const data2 = await resp2.json();
+    log(`Telegram plain response: ${JSON.stringify(data2).substring(0, 500)}`);
+    if (data2.ok) log('Telegram inviato OK (plain)');
+    else log(`Telegram fallito anche plain: ${JSON.stringify(data2)}`);
+  } catch (e) { log(`Telegram errore: ${e.message}\n${e.stack}`); }
 }
 
 function loadExisting() {
@@ -75,9 +113,7 @@ async function createOne() {
   try {
     // 1. Ottieni USER_TOKEN da deezer.getUserData (API anonima)
     log(`  -> step 1 (getUserData)...`);
-    const url1 = `${gwUrl}?method=deezer.getUserData&input=3&api_version=1.0&api_token=&cid=${cid}`;
-    log(`  -> POST: ${url1.substring(0, 80)}...`);
-    const r1 = await fetch(url1, {
+    const r1 = await fetch(`${gwUrl}?method=deezer.getUserData&input=3&api_version=1.0&api_token=&cid=${cid}`, {
       method: 'POST',
       headers,
       body: JSON.stringify({ APP_NAME: 'Deezer' }),
@@ -89,7 +125,6 @@ async function createOne() {
 
     const d1 = await r1.json();
 
-    // Controlla se error è un array vuoto (successo) o un oggetto (errore)
     if (d1.error && typeof d1.error === 'object' && !Array.isArray(d1.error) && Object.keys(d1.error).length > 0) {
       throw new Error(`Errore API: ${JSON.stringify(d1.error)}`);
     }
@@ -123,14 +158,12 @@ async function createOne() {
 
     const bodyText = await r2.text();
 
-    // Controlla se è bloccato da WAF
     if (bodyText.includes('Access Denied') || !bodyText.trimStart().startsWith('{')) {
       throw new Error('Bloccato da Akamai WAF - user.create non disponibile');
     }
 
     const d2 = JSON.parse(bodyText);
 
-    // Controlla errore (error è un array vuoto in successo, oggetto in errore)
     if (d2.error && typeof d2.error === 'object' && !Array.isArray(d2.error) && Object.keys(d2.error).length > 0) {
       throw new Error(`Errore user.create: ${d2.error.message || JSON.stringify(d2.error)}`);
     }
@@ -151,10 +184,10 @@ async function createOne() {
 }
 
 async function main() {
-  // Test Telegram subito all'avvio
-  log('=== Test invio Telegram ===');
-  await sendTelegram('🔧 arl-ecchino test: workflow avviato');
-  log('=== Fine test Telegram ===');
+  // Test connessione Telegram all'avvio
+  log('=== Test Telegram ===');
+  await sendTelegram('🔧 <b>arl-ecchino</b> workflow avviato');
+  log('=== Fine test ===');
 
   const existing = loadExisting();
   const now = new Date();
@@ -183,8 +216,19 @@ async function main() {
     }
 
     if (fresh.length > 0) {
-      const lines = fresh.map(e => `ARL ${e.email}\n\`${e.arl}\`\nPass: \`${e.password}\``).join('\n\n');
-      await sendTelegram(`*D33Z3R - ${fresh.length} nuovi ARL (${new Date().toISOString().substring(0, 10)})*\n\n${lines}`);
+      // Messaggio HTML (safe)
+      const lines = fresh.map(e =>
+        `📧 ${esc(e.email)}\n<code>${esc(e.arl)}</code>\n🔑 <code>${esc(e.password)}</code>`
+      ).join('\n\n');
+      const html = `🎉 <b>D33Z3R — ${fresh.length} nuovi ARL</b>\n📅 ${new Date().toISOString().substring(0, 10)}\n\n${lines}`;
+
+      // Fallback plain (senza tag)
+      const plainLines = fresh.map(e => `${e.email}\n${e.arl}\nPass: ${e.password}`).join('\n\n');
+      const plain = `D33Z3R — ${fresh.length} nuovi ARL\n${new Date().toISOString().substring(0, 10)}\n\n${plainLines}`;
+
+      await sendTelegram(html, plain);
+    } else {
+      await sendTelegram('⚠️ <b>arl-ecchino</b>: nessun ARL generato oggi. Controlla i log su GitHub Actions.');
     }
 
     fs.writeFileSync(DATA_FILE, JSON.stringify(valid, null, 2));
