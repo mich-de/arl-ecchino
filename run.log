@@ -1,93 +1,93 @@
-[2026-11-17T15:37:17.775Z] === Test Telegram ===
-[2026-11-17T15:37:17.779Z] Telegram config: token=8699783544..., chatId=99016038
-[2026-11-17T15:37:18.143Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
-[2026-11-17T15:37:18.143Z] Telegram invio HTML (38 char)...
-[2026-11-17T15:37:18.534Z] Telegram response: {"ok":true,"result":{"message_id":401,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1794929838,"text":"🔧 arl-ecchino workflow avviato","entities":[{"offset":3,"length":11,"type":"bold"}]}}
-[2026-11-17T15:37:18.534Z] Telegram inviato OK (HTML)
-[2026-11-17T15:37:18.534Z] === Fine test ===
-[2026-11-17T15:37:18.534Z] ARL esistenti: 93, validi dopo prune (<30g): 93
-[2026-11-17T15:37:18.535Z]   -> generazione ARL: gabriele.bruno391@gmail.com (user: gabrielebruno391dv)
-[2026-11-17T15:37:18.535Z]   -> step 1 (getUserData)...
-[2026-11-17T15:37:18.828Z]   -> USER_TOKEN ottenuto
-[2026-11-17T15:37:18.828Z]   -> step 2 (user.create)...
-[2026-11-17T15:37:19.202Z]   -> ARL ottenuto: 06dd6b08177b02bfb621...
-[2026-11-17T15:37:19.202Z] [1/3] ✓ ARL: 06dd6b08177b02bfb621...
-[2026-11-17T15:37:21.203Z]   -> generazione ARL: federico.conti741@gmail.com (user: federicoconti741uu)
-[2026-11-17T15:37:21.203Z]   -> step 1 (getUserData)...
-[2026-11-17T15:37:21.328Z]   -> USER_TOKEN ottenuto
-[2026-11-17T15:37:21.328Z]   -> step 2 (user.create)...
-[2026-11-17T15:37:21.669Z]   -> ARL ottenuto: 5b27bd40461eddd91350...
-[2026-11-17T15:37:21.669Z] [2/3] ✓ ARL: 5b27bd40461eddd91350...
-[2026-11-17T15:37:23.670Z]   -> generazione ARL: matteo.wilson912@gmail.com (user: matteowilson912zt)
-[2026-11-17T15:37:23.670Z]   -> step 1 (getUserData)...
-[2026-11-17T15:37:23.805Z]   -> USER_TOKEN ottenuto
-[2026-11-17T15:37:23.805Z]   -> step 2 (user.create)...
-[2026-11-17T15:37:24.057Z]   -> ARL ottenuto: c98e4fbec3f5da1d85c2...
-[2026-11-17T15:37:24.057Z] [3/3] ✓ ARL: c98e4fbec3f5da1d85c2...
-[2026-11-17T15:37:24.057Z] Telegram config: token=8699783544..., chatId=99016038
-[2026-11-17T15:37:24.333Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
-[2026-11-17T15:37:24.333Z] Telegram invio HTML (44 char)...
-[2026-11-17T15:37:24.700Z] Telegram response: {"ok":true,"result":{"message_id":402,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1794929844,"text":"🎉 D33Z3R — 3 nuovi ARL\n📅 2026-11-17","entities":[{"offset":3,"length":20,"type":"bold"}]}}
-[2026-11-17T15:37:24.700Z] Telegram inviato OK (HTML)
-[2026-11-17T15:37:24.700Z] Telegram config: token=8699783544..., chatId=99016038
-[2026-11-17T15:37:24.794Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
-[2026-11-17T15:37:24.794Z] Telegram invio HTML (14 char)...
-[2026-11-17T15:37:24.930Z] Telegram response: {"ok":true,"result":{"message_id":403,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1794929844,"text":"— 1/3 —","entities":[{"offset":0,"length":7,"type":"bold"}]}}
-[2026-11-17T15:37:24.930Z] Telegram inviato OK (HTML)
-[2026-11-17T15:37:24.930Z] Telegram config: token=8699783544..., chatId=99016038
-[2026-11-17T15:37:25.022Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
-[2026-11-17T15:37:25.022Z] Telegram invio HTML (50 char)...
-[2026-11-17T15:37:25.165Z] Telegram response: {"ok":true,"result":{"message_id":404,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1794929845,"text":"📧 Email:\ngabriele.bruno391@gmail.com","entities":[{"offset":10,"length":27,"type":"code"}]}}
-[2026-11-17T15:37:25.165Z] Telegram inviato OK (HTML)
-[2026-11-17T15:37:25.165Z] Telegram config: token=8699783544..., chatId=99016038
-[2026-11-17T15:37:25.257Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
-[2026-11-17T15:37:25.257Z] Telegram invio HTML (41 char)...
-[2026-11-17T15:37:25.427Z] Telegram response: {"ok":true,"result":{"message_id":405,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1794929845,"text":"🔑 Password:\nDzc3besu2ael!A1","entities":[{"offset":13,"length":15,"type":"code"}]}}
-[2026-11-17T15:37:25.427Z] Telegram inviato OK (HTML)
-[2026-11-17T15:37:25.427Z] Telegram config: token=8699783544..., chatId=99016038
-[2026-11-17T15:37:25.518Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
-[2026-11-17T15:37:25.518Z] Telegram invio HTML (213 char)...
-[2026-11-17T15:37:25.706Z] Telegram response: {"ok":true,"result":{"message_id":406,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1794929845,"text":"🎫 ARL:\n06dd6b08177b02bfb6216e9d9c9b40adbcce2fbeafa0510136a39b09feed139a745523c5ad971fd5da2f6c92642fed27a56cdd0868eaded156ea5383c704550f78dc2afd2f9072d2e60bb8226c7a6e92cfb22adf9dcf7f04511e276fc086c7fb","entities":[{"offset":8,"length":192,"type":"code"}]}}
-[2026-11-17T15:37:25.706Z] Telegram inviato OK (HTML)
-[2026-11-17T15:37:26.207Z] Telegram config: token=8699783544..., chatId=99016038
-[2026-11-17T15:37:26.298Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
-[2026-11-17T15:37:26.298Z] Telegram invio HTML (14 char)...
-[2026-11-17T15:37:26.462Z] Telegram response: {"ok":true,"result":{"message_id":407,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1794929846,"text":"— 2/3 —","entities":[{"offset":0,"length":7,"type":"bold"}]}}
-[2026-11-17T15:37:26.462Z] Telegram inviato OK (HTML)
-[2026-11-17T15:37:26.462Z] Telegram config: token=8699783544..., chatId=99016038
-[2026-11-17T15:37:26.554Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
-[2026-11-17T15:37:26.554Z] Telegram invio HTML (50 char)...
-[2026-11-17T15:37:26.737Z] Telegram response: {"ok":true,"result":{"message_id":408,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1794929846,"text":"📧 Email:\nfederico.conti741@gmail.com","entities":[{"offset":10,"length":27,"type":"code"}]}}
-[2026-11-17T15:37:26.737Z] Telegram inviato OK (HTML)
-[2026-11-17T15:37:26.737Z] Telegram config: token=8699783544..., chatId=99016038
-[2026-11-17T15:37:26.828Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
-[2026-11-17T15:37:26.829Z] Telegram invio HTML (41 char)...
-[2026-11-17T15:37:26.999Z] Telegram response: {"ok":true,"result":{"message_id":409,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1794929846,"text":"🔑 Password:\nDz3h7sigwo8g!A1","entities":[{"offset":13,"length":15,"type":"code"}]}}
-[2026-11-17T15:37:26.999Z] Telegram inviato OK (HTML)
-[2026-11-17T15:37:26.999Z] Telegram config: token=8699783544..., chatId=99016038
-[2026-11-17T15:37:27.090Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
-[2026-11-17T15:37:27.090Z] Telegram invio HTML (213 char)...
-[2026-11-17T15:37:27.256Z] Telegram response: {"ok":true,"result":{"message_id":410,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1794929847,"text":"🎫 ARL:\n5b27bd40461eddd9135044c37f48293984188a723280b78a5830f9cdfa6618193be911dc01b6293699a2dcfa55d7671f4b88480a37d2c46ff7cf2ef8a27face96ce3286951f93e9b6cbbc583600c537a37ff9afdb927051ebaa58456c65f457e","entities":[{"offset":8,"length":192,"type":"code"}]}}
-[2026-11-17T15:37:27.256Z] Telegram inviato OK (HTML)
-[2026-11-17T15:37:27.757Z] Telegram config: token=8699783544..., chatId=99016038
-[2026-11-17T15:37:27.848Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
-[2026-11-17T15:37:27.848Z] Telegram invio HTML (14 char)...
-[2026-11-17T15:37:28.155Z] Telegram response: {"ok":true,"result":{"message_id":411,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1794929848,"text":"— 3/3 —","entities":[{"offset":0,"length":7,"type":"bold"}]}}
-[2026-11-17T15:37:28.155Z] Telegram inviato OK (HTML)
-[2026-11-17T15:37:28.155Z] Telegram config: token=8699783544..., chatId=99016038
-[2026-11-17T15:37:28.250Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
-[2026-11-17T15:37:28.250Z] Telegram invio HTML (49 char)...
-[2026-11-17T15:37:28.418Z] Telegram response: {"ok":true,"result":{"message_id":412,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1794929848,"text":"📧 Email:\nmatteo.wilson912@gmail.com","entities":[{"offset":10,"length":26,"type":"code"}]}}
-[2026-11-17T15:37:28.418Z] Telegram inviato OK (HTML)
-[2026-11-17T15:37:28.418Z] Telegram config: token=8699783544..., chatId=99016038
-[2026-11-17T15:37:28.510Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
-[2026-11-17T15:37:28.510Z] Telegram invio HTML (41 char)...
-[2026-11-17T15:37:28.646Z] Telegram response: {"ok":true,"result":{"message_id":413,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1794929848,"text":"🔑 Password:\nDz7lzne8exef!A1","entities":[{"offset":13,"length":15,"type":"code"}]}}
-[2026-11-17T15:37:28.647Z] Telegram inviato OK (HTML)
-[2026-11-17T15:37:28.647Z] Telegram config: token=8699783544..., chatId=99016038
-[2026-11-17T15:37:28.737Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
-[2026-11-17T15:37:28.738Z] Telegram invio HTML (213 char)...
-[2026-11-17T15:37:28.864Z] Telegram response: {"ok":true,"result":{"message_id":414,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1794929848,"text":"🎫 ARL:\nc98e4fbec3f5da1d85c23b9856ffbae5065b1fbbda451ecceb3fb80464c7b6e8588f2a781fca129a2324e04cd75cdd0cf00743094e8613e6022fa85bacaaf1964eb56f945d72fa282197aedb8aa2b685a6d4fda0fb5f14524048ed75742dede5","entities":[{"offset":8,"length":192,"type":"code"}]}}
-[2026-11-17T15:37:28.864Z] Telegram inviato OK (HTML)
-[2026-11-17T15:37:29.366Z] Salvati 96 ARL in arls.json (nuovi oggi: 3)
-[2026-11-17T15:37:29.366Z] Aggiornato arl.txt con l'ARL piu recente
+[2026-11-18T15:15:05.689Z] === Test Telegram ===
+[2026-11-18T15:15:05.692Z] Telegram config: token=8699783544..., chatId=99016038
+[2026-11-18T15:15:06.136Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
+[2026-11-18T15:15:06.136Z] Telegram invio HTML (38 char)...
+[2026-11-18T15:15:06.456Z] Telegram response: {"ok":true,"result":{"message_id":415,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1795014906,"text":"🔧 arl-ecchino workflow avviato","entities":[{"offset":3,"length":11,"type":"bold"}]}}
+[2026-11-18T15:15:06.456Z] Telegram inviato OK (HTML)
+[2026-11-18T15:15:06.456Z] === Fine test ===
+[2026-11-18T15:15:06.456Z] ARL esistenti: 96, validi dopo prune (<30g): 96
+[2026-11-18T15:15:06.456Z]   -> generazione ARL: sam.conti994@gmail.com (user: samconti994dp)
+[2026-11-18T15:15:06.457Z]   -> step 1 (getUserData)...
+[2026-11-18T15:15:06.695Z]   -> USER_TOKEN ottenuto
+[2026-11-18T15:15:06.695Z]   -> step 2 (user.create)...
+[2026-11-18T15:15:07.031Z]   -> ARL ottenuto: c60cfda98aeac88a6731...
+[2026-11-18T15:15:07.031Z] [1/3] ✓ ARL: c60cfda98aeac88a6731...
+[2026-11-18T15:15:09.033Z]   -> generazione ARL: federico.clark101@gmail.com (user: federicoclark101m1)
+[2026-11-18T15:15:09.033Z]   -> step 1 (getUserData)...
+[2026-11-18T15:15:09.190Z]   -> USER_TOKEN ottenuto
+[2026-11-18T15:15:09.190Z]   -> step 2 (user.create)...
+[2026-11-18T15:15:09.581Z]   -> ARL ottenuto: efa1210f70f1bbe1df28...
+[2026-11-18T15:15:09.581Z] [2/3] ✓ ARL: efa1210f70f1bbe1df28...
+[2026-11-18T15:15:11.582Z]   -> generazione ARL: daniel.brown543@gmail.com (user: danielbrown543hs)
+[2026-11-18T15:15:11.582Z]   -> step 1 (getUserData)...
+[2026-11-18T15:15:11.724Z]   -> USER_TOKEN ottenuto
+[2026-11-18T15:15:11.724Z]   -> step 2 (user.create)...
+[2026-11-18T15:15:12.079Z]   -> ARL ottenuto: c8376060a2817735d87a...
+[2026-11-18T15:15:12.079Z] [3/3] ✓ ARL: c8376060a2817735d87a...
+[2026-11-18T15:15:12.079Z] Telegram config: token=8699783544..., chatId=99016038
+[2026-11-18T15:15:12.354Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
+[2026-11-18T15:15:12.354Z] Telegram invio HTML (44 char)...
+[2026-11-18T15:15:12.692Z] Telegram response: {"ok":true,"result":{"message_id":416,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1795014912,"text":"🎉 D33Z3R — 3 nuovi ARL\n📅 2026-11-18","entities":[{"offset":3,"length":20,"type":"bold"}]}}
+[2026-11-18T15:15:12.692Z] Telegram inviato OK (HTML)
+[2026-11-18T15:15:12.692Z] Telegram config: token=8699783544..., chatId=99016038
+[2026-11-18T15:15:12.786Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
+[2026-11-18T15:15:12.787Z] Telegram invio HTML (14 char)...
+[2026-11-18T15:15:12.925Z] Telegram response: {"ok":true,"result":{"message_id":417,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1795014912,"text":"— 1/3 —","entities":[{"offset":0,"length":7,"type":"bold"}]}}
+[2026-11-18T15:15:12.925Z] Telegram inviato OK (HTML)
+[2026-11-18T15:15:12.926Z] Telegram config: token=8699783544..., chatId=99016038
+[2026-11-18T15:15:13.017Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
+[2026-11-18T15:15:13.018Z] Telegram invio HTML (45 char)...
+[2026-11-18T15:15:13.169Z] Telegram response: {"ok":true,"result":{"message_id":418,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1795014913,"text":"📧 Email:\nsam.conti994@gmail.com","entities":[{"offset":10,"length":22,"type":"code"}]}}
+[2026-11-18T15:15:13.169Z] Telegram inviato OK (HTML)
+[2026-11-18T15:15:13.169Z] Telegram config: token=8699783544..., chatId=99016038
+[2026-11-18T15:15:13.262Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
+[2026-11-18T15:15:13.263Z] Telegram invio HTML (41 char)...
+[2026-11-18T15:15:13.504Z] Telegram response: {"ok":true,"result":{"message_id":419,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1795014913,"text":"🔑 Password:\nDzfu7lncm0yj!A1","entities":[{"offset":13,"length":15,"type":"code"}]}}
+[2026-11-18T15:15:13.504Z] Telegram inviato OK (HTML)
+[2026-11-18T15:15:13.504Z] Telegram config: token=8699783544..., chatId=99016038
+[2026-11-18T15:15:13.596Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
+[2026-11-18T15:15:13.596Z] Telegram invio HTML (213 char)...
+[2026-11-18T15:15:13.751Z] Telegram response: {"ok":true,"result":{"message_id":420,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1795014913,"text":"🎫 ARL:\nc60cfda98aeac88a673112a7236c186ee464cd6005ca927dca92a013cfcc1e6dbce86c15725295a2a9fe384b2c4dcf235f8e410e258a695ae9ded417f8a6641e5bbf1b995c65e17a1005440e92f1b5f0f090001d31aa773a60f0b51d82fadc72","entities":[{"offset":8,"length":192,"type":"code"}]}}
+[2026-11-18T15:15:13.751Z] Telegram inviato OK (HTML)
+[2026-11-18T15:15:14.251Z] Telegram config: token=8699783544..., chatId=99016038
+[2026-11-18T15:15:14.346Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
+[2026-11-18T15:15:14.346Z] Telegram invio HTML (14 char)...
+[2026-11-18T15:15:14.534Z] Telegram response: {"ok":true,"result":{"message_id":421,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1795014914,"text":"— 2/3 —","entities":[{"offset":0,"length":7,"type":"bold"}]}}
+[2026-11-18T15:15:14.534Z] Telegram inviato OK (HTML)
+[2026-11-18T15:15:14.534Z] Telegram config: token=8699783544..., chatId=99016038
+[2026-11-18T15:15:14.625Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
+[2026-11-18T15:15:14.625Z] Telegram invio HTML (50 char)...
+[2026-11-18T15:15:14.803Z] Telegram response: {"ok":true,"result":{"message_id":422,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1795014914,"text":"📧 Email:\nfederico.clark101@gmail.com","entities":[{"offset":10,"length":27,"type":"code"}]}}
+[2026-11-18T15:15:14.804Z] Telegram inviato OK (HTML)
+[2026-11-18T15:15:14.804Z] Telegram config: token=8699783544..., chatId=99016038
+[2026-11-18T15:15:14.898Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
+[2026-11-18T15:15:14.898Z] Telegram invio HTML (41 char)...
+[2026-11-18T15:15:15.090Z] Telegram response: {"ok":true,"result":{"message_id":423,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1795014914,"text":"🔑 Password:\nDzrschg14u2l!A1","entities":[{"offset":13,"length":15,"type":"code"}]}}
+[2026-11-18T15:15:15.090Z] Telegram inviato OK (HTML)
+[2026-11-18T15:15:15.090Z] Telegram config: token=8699783544..., chatId=99016038
+[2026-11-18T15:15:15.184Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
+[2026-11-18T15:15:15.184Z] Telegram invio HTML (213 char)...
+[2026-11-18T15:15:15.391Z] Telegram response: {"ok":true,"result":{"message_id":424,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1795014915,"text":"🎫 ARL:\nefa1210f70f1bbe1df28a990b1932d42f9b3d3d142899f7a9a140cebbc9be7bd139b71f4c427fc8b1d575d1fbb3afe21b3c0fb53c0a1bd45742978d7e10f3bdbc6e0f396b39f4ca8613db7227acd84dcc5a97b7bc5dd4e39aecf2127409b2435","entities":[{"offset":8,"length":192,"type":"code"}]}}
+[2026-11-18T15:15:15.391Z] Telegram inviato OK (HTML)
+[2026-11-18T15:15:15.892Z] Telegram config: token=8699783544..., chatId=99016038
+[2026-11-18T15:15:15.984Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
+[2026-11-18T15:15:15.984Z] Telegram invio HTML (14 char)...
+[2026-11-18T15:15:16.212Z] Telegram response: {"ok":true,"result":{"message_id":425,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1795014916,"text":"— 3/3 —","entities":[{"offset":0,"length":7,"type":"bold"}]}}
+[2026-11-18T15:15:16.212Z] Telegram inviato OK (HTML)
+[2026-11-18T15:15:16.212Z] Telegram config: token=8699783544..., chatId=99016038
+[2026-11-18T15:15:16.303Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
+[2026-11-18T15:15:16.303Z] Telegram invio HTML (48 char)...
+[2026-11-18T15:15:16.621Z] Telegram response: {"ok":true,"result":{"message_id":426,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1795014916,"text":"📧 Email:\ndaniel.brown543@gmail.com","entities":[{"offset":10,"length":25,"type":"code"}]}}
+[2026-11-18T15:15:16.621Z] Telegram inviato OK (HTML)
+[2026-11-18T15:15:16.621Z] Telegram config: token=8699783544..., chatId=99016038
+[2026-11-18T15:15:16.712Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
+[2026-11-18T15:15:16.712Z] Telegram invio HTML (41 char)...
+[2026-11-18T15:15:16.912Z] Telegram response: {"ok":true,"result":{"message_id":427,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1795014916,"text":"🔑 Password:\nDzci92osl0f2!A1","entities":[{"offset":13,"length":15,"type":"code"}]}}
+[2026-11-18T15:15:16.912Z] Telegram inviato OK (HTML)
+[2026-11-18T15:15:16.912Z] Telegram config: token=8699783544..., chatId=99016038
+[2026-11-18T15:15:17.004Z] Bot info: {"ok":true,"result":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot","can_join_groups":true,"can_read_all_group_messages":false,"supports_inline_queries":false,"supports_guest_queries":false,"can_connect_to_business":false,"has_main_web_app":false,"has_topics_enabled":false,"allows_users_to_create_topics":false,"can_manage_bots":false,"supports_join_request_queries":false}}
+[2026-11-18T15:15:17.004Z] Telegram invio HTML (213 char)...
+[2026-11-18T15:15:17.145Z] Telegram response: {"ok":true,"result":{"message_id":428,"from":{"id":8699783544,"is_bot":true,"first_name":"arl-ecchino","username":"arlarlarl_bot"},"chat":{"id":99016038,"first_name":"Mich.De","username":"michde888","type":"private"},"date":1795014917,"text":"🎫 ARL:\nc8376060a2817735d87aba484330bbf0686159eb2959d0f5aefc6f699e76476b5463a81113519393950d4992c4ba1d7bb65970a610d4af38b089075925e648b1cbfccb7e624d1a988604fbfdec845492fcda133c884a5b4d535cc91a5f0d12e2","entities":[{"offset":8,"length":192,"type":"code"}]}}
+[2026-11-18T15:15:17.145Z] Telegram inviato OK (HTML)
+[2026-11-18T15:15:17.646Z] Salvati 99 ARL in arls.json (nuovi oggi: 3)
+[2026-11-18T15:15:17.646Z] Aggiornato arl.txt con l'ARL piu recente
