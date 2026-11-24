@@ -1,26 +1,5 @@
 [
   {
-    "arl": "fa2a9f541ca1bbcd17dbe0f2e886ecc27b55289b23b2d9c058b98c2d62e11bb5608f1256eb35fefa0976a3500d2e8994a4124e13a59b418e970401f2ff342d9567ca8f7b3df4012100d926d438fcbbf28cc3c971bd1ff83be639b5c0894768ba",
-    "email": "lorenzo.rossi195@gmail.com",
-    "password": "Dzyyz27zs1sf!A1",
-    "username": "lorenzorossi195yh",
-    "created": "2026-10-25T10:53:57.086Z"
-  },
-  {
-    "arl": "53c0b591ac4868b75228c4d62d0deb533f927bb98759d1b3f9c6436d264c6d878d1669bbe36cd952773b036bc980922bcb532849797b467557dcc9783e657c014b01865ba1f173cc8e64b79aea89f8303fa91a4c41f32d561a1ebf4f812a3138",
-    "email": "alex.brown574@gmail.com",
-    "password": "Dzpcb1fpcdop!A1",
-    "username": "alexbrown574gm",
-    "created": "2026-10-25T10:53:57.086Z"
-  },
-  {
-    "arl": "8d8608a319c6993ca29bc9044a039c2c6d51f592e183123d634c2b8299bd796c3777f374c04afcb902e356ca525fe609b1408be1a35d5da7547556568a0c813d5b8fa1e8a8513094e406833eeae50d583e65e0c858618b6014cb9982c894bab5",
-    "email": "davide.ricci628@gmail.com",
-    "password": "Dz3fsrgtlvzc!A1",
-    "username": "davidericci628ge",
-    "created": "2026-10-25T10:53:57.086Z"
-  },
-  {
     "arl": "70e5489c7afefb8c7d696a00504a350474ed9b4adce421738c36302de768feace2c0503408f86c3443a115fc2b4359cc66f26f188bd4447beeda5617f745f30629702c9bf6b1adab8203c6d298746de2c78fb01d11d7b415e50982f5defd9f0b",
     "email": "chris.bianchi982@gmail.com",
     "password": "Dzgn47p8bcrj!A1",
@@ -628,5 +607,26 @@
     "password": "Dz4dvavr783f!A1",
     "username": "andreaferrari587gv",
     "created": "2026-11-23T17:34:17.663Z"
+  },
+  {
+    "arl": "b2132dc621ba96804aac6934f19a56807336a345c45ae9b41ea7ff8ab81b200a6b299eb361a4bb2197417257d4387e84c3039f4420c9b1e05b539b4e2077b163d21b0395f05c1bc43cca1a7db3fa4904ea0d618cdd25ee488594475942edb35a",
+    "email": "chris.greco299@gmail.com",
+    "password": "Dz35cfl3ko53!A1",
+    "username": "chrisgreco299ql",
+    "created": "2026-11-24T17:05:19.794Z"
+  },
+  {
+    "arl": "4350590bff9425eea2a10be2956e685ad908bc700cc35cf8dbca340b08854f0aa68fa8b5a8ec52e4fe5eaaecae4b7b7f813fbd8ca65819611091616e3f5a87bb21abd2c3f83ac37719432be4e8c47ec3e54fad7a18f507244b99ec6579ea0045",
+    "email": "sam.rossi255@gmail.com",
+    "password": "Dzgvivlqskrf!A1",
+    "username": "samrossi255b1",
+    "created": "2026-11-24T17:05:19.794Z"
+  },
+  {
+    "arl": "a62d281237a195d01a021483157dd54ec1caf04216045e80a996563966a7bab9c3c9bf8c9a0c261ee7e822aecfe83b1689224a95876b1946a3edfaae6afd7965200c0ace2b7051c9cfc653b39243c3056789b92396ad7d05e327477f8e701a44",
+    "email": "robert.conti665@gmail.com",
+    "password": "Dz4hyeb4wp2o!A1",
+    "username": "robertconti665j7",
+    "created": "2026-11-24T17:05:19.794Z"
   }
 ]
