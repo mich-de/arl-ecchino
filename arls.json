@@ -1,26 +1,5 @@
 [
   {
-    "arl": "70e5489c7afefb8c7d696a00504a350474ed9b4adce421738c36302de768feace2c0503408f86c3443a115fc2b4359cc66f26f188bd4447beeda5617f745f30629702c9bf6b1adab8203c6d298746de2c78fb01d11d7b415e50982f5defd9f0b",
-    "email": "chris.bianchi982@gmail.com",
-    "password": "Dzgn47p8bcrj!A1",
-    "username": "chrisbianchi982yd",
-    "created": "2026-10-26T12:24:43.690Z"
-  },
-  {
-    "arl": "21aa26b4e23db0c44b215fffb5e118e8a3d711e617d83afde43430077030d1dd82aebd69ca7818056f5f7b8bb9959d5b7ced8e6ce4eda7550f4cbf61707b1f441c51d2c1c03a69fb234ccd472f7f4fd8044c226fa88619056059d9a222e58efa",
-    "email": "marco.miller847@gmail.com",
-    "password": "Dzw5nedhh5tu!A1",
-    "username": "marcomiller847nn",
-    "created": "2026-10-26T12:24:43.690Z"
-  },
-  {
-    "arl": "99e4b5240ead7990af5ea77749a95b07ccf14ad53f356ae42119d0012a37afa5334241882fc14c85f56ed228d2ef2dd8765607170685c3ac117822cf9ea596e7f91069bfa90da822c21ff13b00d74b1341a105346cca21dc855d5dc3a8d9a554",
-    "email": "daniel.miller963@gmail.com",
-    "password": "Dz8urx8kwin1!A1",
-    "username": "danielmiller963sf",
-    "created": "2026-10-26T12:24:43.690Z"
-  },
-  {
     "arl": "208742b2f3c08c054e4c930603f91462d790e46c4d3886cb8a0e1f009a261da23e6d99e35f538d66b0640598a472f43f4ed16090493fb9866f04867c9040927215cee9268ef9eeed9f5e79def7c66d90e8d506c0b3251c98d9b89bbe05e70c82",
     "email": "jordan.marino807@gmail.com",
     "password": "Dzjmhrzpsi2v!A1",
@@ -628,5 +607,26 @@
     "password": "Dz4hyeb4wp2o!A1",
     "username": "robertconti665j7",
     "created": "2026-11-24T17:05:19.794Z"
+  },
+  {
+    "arl": "e6482d9457dffea5af82e71b33c57c5b4318c32b059641a5f7b14b1a25efb924b7b6ec1da20b8296395f233df7c9bce97dbe0c9c95e60d652e0ed322e4782c60b4a1daab09d5e322a2ce28d087f61e3050396ad60e85b2d1c519c769a3cb6779",
+    "email": "lorenzo.ferrari699@gmail.com",
+    "password": "Dz6vqq7e111i!A1",
+    "username": "lorenzoferrari6992b",
+    "created": "2026-11-25T16:54:10.310Z"
+  },
+  {
+    "arl": "65ac683288e98d00478a43254589460a4d47366e8873fc93ad934a09d4c59bfd9d6129b62e5f00addc3950a3dda599eee4dbef72871d1a1e582733b00a20006289137c459a6b06b3f70726063a1b8cc4e899e6b9a344f67e22e48c93a62a2727",
+    "email": "alessio.bianchi284@gmail.com",
+    "password": "Dz4yy8tzqla7!A1",
+    "username": "alessiobianchi284qt",
+    "created": "2026-11-25T16:54:10.310Z"
+  },
+  {
+    "arl": "8dbe98273524a30b756ded3ae7e10aaac71090f43cc1cf360b3a41ef99e7c0e5064ec52715d4c4da8776195a8cc879197c9097ad2ca9e71cf04345b80acc4c2900ccd660a81b541e727be4ff04b3963ebd2ac59387491e6feda1c5b68e16149e",
+    "email": "alessio.ferrari298@gmail.com",
+    "password": "Dzg7u5i1lfty!A1",
+    "username": "alessioferrari29816",
+    "created": "2026-11-25T16:54:10.310Z"
   }
 ]
