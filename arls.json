@@ -1,26 +1,5 @@
 [
   {
-    "arl": "d409a31af67b7844d3d4fdd2153eedc83c1a17f806050d88a958da50b448f854aef56e1c280fd4cc3632ecee19b4b76c9bc76897847a5f59f05f869dc4d8d030ae077dd96621bb90539af7f6a1ad8229359909bb38631b0f71031cbde2b0211e",
-    "email": "jordan.bruno461@gmail.com",
-    "password": "Dzf2riwbal4j!A1",
-    "username": "jordanbruno461ta",
-    "created": "2026-10-28T12:16:32.497Z"
-  },
-  {
-    "arl": "7568b3945b1d765dc81d7cdafb9649170dd1a8e034ce08b59edf0283cc81f17383f1e517f0e1ad9415e3149d54a99b86ec5b0498940075e2493080b13505ae4b63406f88859f720801d7bca531458329c7eb398d63d18cafc0e582ff5d6292b6",
-    "email": "sam.ferrari891@gmail.com",
-    "password": "Dzpptuagdk6a!A1",
-    "username": "samferrari8911a",
-    "created": "2026-10-28T12:16:32.497Z"
-  },
-  {
-    "arl": "58be5a93f1086e9a7fa45f4a3c543f3d14bcd4baf2fab11633f08d8b81c22749e9d6afd649f7307f1fb0d31707401b9d33ba747d9240bb497272076048e88700b68bd54c886a2432097e7bb5a6ad3da0e9594c8a816187cdbcae6fd25b58b430",
-    "email": "jordan.wilson492@gmail.com",
-    "password": "Dzn7ogq5y4r7!A1",
-    "username": "jordanwilson492y5",
-    "created": "2026-10-28T12:16:32.497Z"
-  },
-  {
     "arl": "7500157bd39fa162f2a0f9e294629866af0dfdda639f43a2b0952bd34402bf09676f47c7f5f702219f972ddd137c27ec5fd1e5da80429a17c82b32a7c913a8bffb165971df6c15c8dc7bf7d2b0365ac03b8bb92f1b983b80317b41ecf2b3ece5",
     "email": "simone.conti927@gmail.com",
     "password": "Dzee0nc5rn55!A1",
@@ -628,5 +607,26 @@
     "password": "Dzw1p3qp7gjm!A1",
     "username": "lorenzogreco738fn",
     "created": "2026-11-26T16:31:19.029Z"
+  },
+  {
+    "arl": "5fd527987565fe6414f7e556b1fcf663271a1f9323dd878fba9a461b7d627924c5016abf4156840bceeb9932f73dda52c63226fdbd26b0183384524db51010b1adb2005be1228c589507a43fef357e8a078c75483149c07aa7a8f44238922d3d",
+    "email": "federico.taylor237@gmail.com",
+    "password": "Dz3wowoabwah!A1",
+    "username": "federicotaylor237kr",
+    "created": "2026-11-27T16:17:24.017Z"
+  },
+  {
+    "arl": "135bd6a23e2a00624c26f7cede43af9523c472cea2e782a82ecf01ecf528423f52e0d423c0d90cad47b6563dfc10470eff875a54ef1b02e03c77fe15587519eb4d8c67c60afb2145ac05ff4ef945301a456381270ff207d8957b0b3d52fc3506",
+    "email": "marco.ferrari754@gmail.com",
+    "password": "Dzjmj7vnrch1!A1",
+    "username": "marcoferrari754fp",
+    "created": "2026-11-27T16:17:24.017Z"
+  },
+  {
+    "arl": "ac73d1b4a050a7db541032d7f86a174eccffb7fee2a39ca610dca17e0f86c55af05bc25325c5c4fc848ffa6f049031ae39587fc5c1cdc55bff6f0e6eef936ee20e362b7646f59ee149e95eb5ec1079cf5afe6eeacd76779db1c0b328fbdfe304",
+    "email": "federico.marino296@gmail.com",
+    "password": "Dzvd73ncitlo!A1",
+    "username": "federicomarino2965g",
+    "created": "2026-11-27T16:17:24.017Z"
   }
 ]
